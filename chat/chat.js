@@ -86,7 +86,7 @@ function appendMessage(role, text) {
 
   const roleLabel = document.createElement("div");
   roleLabel.className = "message-role";
-  roleLabel.textContent = role === "user" ? "You" : "PhishGuard AI";
+  roleLabel.textContent = role === "user" ? "You" : "GonePhishin AI";
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble";
@@ -114,7 +114,7 @@ async function send(text) {
   // Show thinking indicator
   const thinkingWrapper = document.createElement("div");
   thinkingWrapper.className = "message assistant thinking";
-  thinkingWrapper.innerHTML = `<div class="message-role">PhishGuard AI</div><div class="message-bubble">Thinking...</div>`;
+  thinkingWrapper.innerHTML = `<div class="message-role">GonePhishin AI</div><div class="message-bubble">Thinking...</div>`;
   messagesEl.appendChild(thinkingWrapper);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 

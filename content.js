@@ -102,7 +102,7 @@ function showWarningBanner(result) {
 
   banner.innerHTML = `
     <span>
-      ⚠️ <strong>PhishGuard Warning:</strong> This page may be a phishing attempt.
+      ⚠️ <strong>GonePhishin Warning:</strong> This page may be a phishing attempt.
       <em style="opacity:0.9;">${result.reason}</em>
     </span>
     <span style="display:flex;gap:8px;flex-shrink:0;margin-left:12px;">
@@ -179,7 +179,7 @@ async function runAnalysis(forceRefresh = false) {
       if (mode === "passive1") {
         showWarningBanner({ ...result, reason: warningText });
       } else if (mode === "passive2") {
-        alert(`⚠️ PhishGuard: Phishing Detected\n\n${warningText}`);
+        alert(`⚠️ GonePhishin: Phishing Detected\n\n${warningText}`);
       }
       // mode === "manual": do nothing, popup shows the result
     } else {
@@ -195,7 +195,7 @@ async function runAnalysis(forceRefresh = false) {
     });
   } catch (err) {
     // Background may not be ready yet; silently ignore
-    console.debug("[PhishGuard] Analysis skipped:", err.message);
+    console.debug("[GonePhishin] Analysis skipped:", err.message);
   }
 }
 
