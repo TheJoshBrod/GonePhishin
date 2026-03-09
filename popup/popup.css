@@ -146,3 +146,20 @@ a:hover {
   color: #374151;
   text-decoration: underline;
 }
+
+.learn-more {
+  width: 100%;
+  margin-top: 10px;
+  background: #7f1d1d;
+  color: #fca5a5;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.learn-more:hover { background: #991b1b; color: #fff; }
+.learn-more.hidden { display: none; }

@@ -105,25 +105,39 @@ function showWarningBanner(result) {
       ⚠️ <strong>PhishGuard Warning:</strong> This page may be a phishing attempt.
       <em style="opacity:0.9;">${result.reason}</em>
     </span>
-    <button id="phishguard-dismiss" style="
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.6);
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 12px;
-    ">Dismiss</button>
+    <span style="display:flex;gap:8px;flex-shrink:0;margin-left:12px;">
+      <button id="phishguard-learn" style="
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.6);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      ">Learn more</button>
+      <button id="phishguard-dismiss" style="
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.6);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      ">Dismiss</button>
+    </span>
   `;
 
   document.body.prepend(banner);
   document.getElementById("phishguard-dismiss").addEventListener("click", () =>
     banner.remove()
   );
+  document.getElementById("phishguard-learn").addEventListener("click", openChat);
 }
 
 function removeWarningBanner() {
   document.getElementById("phishguard-banner")?.remove();
+}
+
+function openChat() {
+  chrome.runtime.sendMessage({ type: "OPEN_CHAT" });
 }
 
 // ── Analysis Trigger ──────────────────────────────────────────────────────────
@@ -154,6 +168,9 @@ async function runAnalysis(forceRefresh = false) {
     if (!result) return;
 
     if (result.isPhishing) {
+      // Save context for the chat page
+      chrome.storage.local.set({ chatContext: { ...signals, ...result } });
+
       const { detectionMode, showReason } = await chrome.storage.sync.get(["detectionMode", "showReason"]);
       const mode = detectionMode || "passive1";
       const includeReason = showReason !== false;

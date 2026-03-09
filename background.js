@@ -64,22 +64,59 @@ Page text snippet: ${signals.bodyText.slice(0, 300)}`;
 // ── Message Handler ───────────────────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type !== "ANALYZE_PAGE") return false;
+  if (message.type === "ANALYZE_PAGE") {
+    console.log("[PhishGuard] Received ANALYZE_PAGE for:", message.payload?.url);
+    handleAnalysis(message.payload)
+      .then((result) => {
+        console.log("[PhishGuard] Analysis complete:", result);
+        sendResponse(result);
+      })
+      .catch((err) => {
+        console.error("[PhishGuard] Analysis error:", err);
+        sendResponse({ error: err.message });
+      });
+    return true;
+  }
 
-  console.log("[PhishGuard] Received ANALYZE_PAGE for:", message.payload?.url);
+  if (message.type === "OPEN_CHAT") {
+    chrome.tabs.create({ url: chrome.runtime.getURL("chat/chat.html") });
+    return false;
+  }
 
-  handleAnalysis(message.payload)
-    .then((result) => {
-      console.log("[PhishGuard] Analysis complete:", result);
-      sendResponse(result);
-    })
-    .catch((err) => {
-      console.error("[PhishGuard] Analysis error:", err);
-      sendResponse({ error: err.message });
-    });
-
-  return true;
+  if (message.type === "CHAT_MESSAGE") {
+    handleChat(message.payload)
+      .then(sendResponse)
+      .catch((err) => sendResponse({ error: err.message }));
+    return true;
+  }
 });
+
+async function handleChat({ history }) {
+  const { apiKey } = await chrome.storage.sync.get("apiKey");
+  if (!apiKey) throw new Error("No API key configured.");
+
+  const response = await fetch(GEMINI_API_URL(apiKey), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: history,
+      generationConfig: {
+        maxOutputTokens: 1024,
+        thinkingConfig: { thinkingBudget: 0 },
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Gemini API error ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+  const parts = data.candidates?.[0]?.content?.parts ?? [];
+  const text = parts.find((p) => p.text)?.text ?? "";
+  return { text };
+}
 
 async function handleAnalysis(signals) {
   const cached = analysisCache.get(signals.url);

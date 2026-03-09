@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — Why is this phishing?</title>
+  <link rel="stylesheet" href="chat.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span class="logo">🛡️</span>
+      <div>
+        <div class="sidebar-title">PhishGuard</div>
+        <div class="sidebar-subtitle">Phishing Analysis</div>
+      </div>
+    </div>
+
+    <div class="page-info">
+      <div class="info-label">Flagged page</div>
+      <div id="page-url" class="info-url"></div>
+      <div class="verdict-badge">🚨 Phishing Detected</div>
+      <div id="initial-reason" class="info-reason"></div>
+    </div>
+
+    <div class="suggestions">
+      <div class="info-label">Ask about</div>
+      <button class="suggestion-btn" data-q="What specific signals made you think this is phishing?">What signals flagged this?</button>
+      <button class="suggestion-btn" data-q="How can I verify if this site is legitimate?">How do I verify legitimacy?</button>
+      <button class="suggestion-btn" data-q="What should I do if I already entered my credentials?">I already entered my info</button>
+      <button class="suggestion-btn" data-q="What does a real version of this site look like?">What does the real site look like?</button>
+    </div>
+  </div>
+
+  <div class="chat-area">
+    <div id="messages" class="messages"></div>
+
+    <div class="input-row">
+      <textarea id="input" placeholder="Ask anything about why this page was flagged..." rows="1"></textarea>
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script src="chat.js"></script>
+</body>
+</html>

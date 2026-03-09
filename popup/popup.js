@@ -10,10 +10,15 @@ const badge = document.getElementById("confidence-badge");
 const timestamp = document.getElementById("analyzed-at");
 const reanalyzeBtn = document.getElementById("reanalyze-btn");
 const optionsLink = document.getElementById("options-link");
+const learnMoreBtn = document.getElementById("learn-more-btn");
 
 optionsLink.addEventListener("click", (e) => {
   e.preventDefault();
   chrome.runtime.openOptionsPage();
+});
+
+learnMoreBtn.addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("chat/chat.html") });
 });
 
 reanalyzeBtn.addEventListener("click", async () => {
@@ -65,6 +70,7 @@ function renderResult(result) {
     card.className = "card phishing";
     icon.textContent = "🚨";
     label.textContent = "Phishing Detected";
+    learnMoreBtn.classList.remove("hidden");
   } else {
     card.className = "card safe";
     icon.textContent = "✅";
