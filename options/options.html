@@ -176,6 +176,34 @@
     </div>
   </div>
 
+  <!-- ── Claude Fallback ── -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Claude Fallback (Anthropic)</h2>
+      <div class="section-desc">If Gemini fails, retry using Claude instead</div>
+    </div>
+
+    <label for="claude-key">Anthropic API Key</label>
+    <input type="password" id="claude-key" placeholder="sk-ant-..." autocomplete="off" />
+    <p class="hint">
+      Only sent to <code>api.anthropic.com</code>.
+      <a href="https://console.anthropic.com/settings/keys" target="_blank">Get a key →</a>
+    </p>
+
+    <div class="toggle-row" style="margin-top:16px;">
+      <div>
+        <div class="toggle-label">Use Claude as fallback</div>
+        <div class="toggle-desc">Retry with Claude when Gemini returns an error</div>
+      </div>
+      <input type="checkbox" id="use-claude" />
+    </div>
+
+    <div class="section-footer">
+      <button id="save-claude-btn">Save</button>
+      <span class="saved-indicator" id="claude-saved">✓ Saved</span>
+    </div>
+  </div>
+
   <!-- ── Detection Mode ── -->
   <div class="section">
     <div class="section-header">

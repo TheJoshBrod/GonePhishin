@@ -11,6 +11,11 @@ const modeRadios      = document.querySelectorAll('input[name="mode"]');
 const saveModeBtn     = document.getElementById("save-mode-btn");
 const modeSaved       = document.getElementById("mode-saved");
 
+const claudeKeyInput     = document.getElementById("claude-key");
+const useClaudeToggle    = document.getElementById("use-claude");
+const saveClaudeBtn      = document.getElementById("save-claude-btn");
+const claudeSaved        = document.getElementById("claude-saved");
+
 const analyzeAllToggle   = document.getElementById("analyze-all");
 const showReasonToggle   = document.getElementById("show-reason");
 const saveBehaviorBtn    = document.getElementById("save-behavior-btn");
@@ -25,7 +30,10 @@ function flash(el) {
 
 // ── Load ──────────────────────────────────────────────────────────────────────
 
-chrome.storage.sync.get(["apiKey", "detectionMode", "analyzeAll", "showReason"], (data) => {
+chrome.storage.sync.get(["apiKey", "claudeApiKey", "useClaude", "detectionMode", "analyzeAll", "showReason"], (data) => {
+  if (data.claudeApiKey) claudeKeyInput.placeholder = "sk-ant-••••••••••••••••";
+  useClaudeToggle.checked = data.useClaude === true;
+
   if (data.apiKey) {
     apiKeyInput.placeholder = "AIza••••••••••••••••";
   }
@@ -47,6 +55,23 @@ saveKeyBtn.addEventListener("click", () => {
     apiKeyInput.value = "";
     apiKeyInput.placeholder = "AIza••••••••••••••••";
     flash(keySaved);
+  });
+});
+
+// ── Save: Claude Fallback ─────────────────────────────────────────────────────
+
+saveClaudeBtn.addEventListener("click", () => {
+  const updates = { useClaude: useClaudeToggle.checked };
+  const keyValue = claudeKeyInput.value.trim();
+  if (keyValue) {
+    updates.claudeApiKey = keyValue;
+  }
+  chrome.storage.sync.set(updates, () => {
+    if (keyValue) {
+      claudeKeyInput.value = "";
+      claudeKeyInput.placeholder = "sk-ant-••••••••••••••••";
+    }
+    flash(claudeSaved);
   });
 });
 

@@ -51,6 +51,47 @@ Schema: {"isPhishing":boolean,"confidence":"high"|"medium"|"low","reason":"one s
   return JSON.parse(cleaned);
 }
 
+// ── Claude API Call ───────────────────────────────────────────────────────────
+
+const CLAUDE_MODEL = "claude-haiku-4-5-20251001";
+const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
+
+async function analyzeWithClaude(signals, apiKey) {
+  const prompt = buildPrompt(signals);
+  console.log("[GonePhishin] Falling back to Claude for:", signals.url);
+
+  const response = await fetch(CLAUDE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 512,
+      system: `You are a phishing detector. Reply with ONLY a JSON object, no markdown.
+Schema: {"isPhishing":boolean,"confidence":"high"|"medium"|"low","reason":"one sentence"}`,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  console.log("[GonePhishin] Claude response status:", response.status);
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Claude API error ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+  const text = data.content?.[0]?.text ?? "";
+  console.log("[GonePhishin] Claude raw response:", text);
+
+  const cleaned = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(cleaned);
+}
+
 function buildPrompt(signals) {
   return `URL: ${signals.url}
 Title: ${signals.title}
@@ -125,7 +166,7 @@ async function handleAnalysis(signals) {
     return cached.result;
   }
 
-  const { apiKey } = await chrome.storage.sync.get("apiKey");
+  const { apiKey, claudeApiKey, useClaude } = await chrome.storage.sync.get(["apiKey", "claudeApiKey", "useClaude"]);
   if (!apiKey) {
     return {
       isPhishing: false,
@@ -134,7 +175,18 @@ async function handleAnalysis(signals) {
     };
   }
 
-  const result = await analyzeWithGemini(signals, apiKey);
+  let result;
+  try {
+    result = await analyzeWithGemini(signals, apiKey);
+  } catch (geminiErr) {
+    console.warn("[GonePhishin] Gemini failed:", geminiErr.message);
+    if (useClaude && claudeApiKey) {
+      result = await analyzeWithClaude(signals, claudeApiKey);
+    } else {
+      throw geminiErr;
+    }
+  }
+
   analysisCache.set(signals.url, { result, timestamp: Date.now() });
   return result;
 }
