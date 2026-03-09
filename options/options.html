@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — Settings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      background: #f9fafb;
+      color: #111827;
+      padding: 40px;
+      max-width: 560px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    h1 { font-size: 22px; font-weight: 700; }
+
+    .section {
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #374151;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus { border-color: #2563eb; }
+
+    .hint {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 6px;
+    }
+
+    button {
+      margin-top: 16px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button:hover { background: #1d4ed8; }
+
+    #save-status {
+      display: inline-block;
+      margin-left: 12px;
+      font-size: 13px;
+      color: #16a34a;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #save-status.visible { opacity: 1; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .toggle-row:last-child { border-bottom: none; }
+
+    .toggle-label { font-size: 13px; color: #374151; }
+    .toggle-desc  { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+
+    input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
+    a { color: #2563eb; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <span style="font-size:28px;">🛡️</span>
+    <h1>PhishGuard Settings</h1>
+  </header>
+
+  <div class="section">
+    <h2>Anthropic API Key</h2>
+    <label for="api-key">API Key</label>
+    <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off" />
+    <p class="hint">
+      Your key is stored locally in Chrome sync storage and never sent anywhere except
+      directly to <code>api.anthropic.com</code>.
+      <a href="https://console.anthropic.com/settings/keys" target="_blank">Get a key →</a>
+    </p>
+    <button id="save-btn">Save</button>
+    <span id="save-status">✓ Saved</span>
+  </div>
+
+  <div class="section">
+    <h2>Behavior</h2>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Show warning banner</div>
+        <div class="toggle-desc">Display a red banner at the top of phishing pages</div>
+      </div>
+      <input type="checkbox" id="show-banner" checked />
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Analyze all pages</div>
+        <div class="toggle-desc">When off, only pages with login forms are analyzed</div>
+      </div>
+      <input type="checkbox" id="analyze-all" checked />
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

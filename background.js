@@ -1,0 +1,101 @@
+/**
+ * background.js — Service worker.
+ * Receives page signals from content.js, calls Claude API, returns verdict.
+ */
+
+const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
+const CLAUDE_MODEL = "claude-haiku-4-5";
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+const analysisCache = new Map();
+
+// ── Claude API Call ───────────────────────────────────────────────────────────
+
+async function analyzeWithClaude(signals, apiKey) {
+  const prompt = buildPrompt(signals);
+  console.log("[PhishGuard] Sending request to Claude for:", signals.url);
+  console.log("[PhishGuard] Prompt length:", prompt.length, "chars");
+
+  const response = await fetch(CLAUDE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 128,
+      system: `You are a phishing detector. Reply with ONLY a JSON object, no markdown.
+Schema: {"isPhishing":boolean,"confidence":"high"|"medium"|"low","reason":"one sentence"}`,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  console.log("[PhishGuard] Claude response status:", response.status);
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Claude API error ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+  const text = data.content.find((b) => b.type === "text")?.text ?? "";
+  console.log("[PhishGuard] Claude raw response:", text);
+
+  const cleaned = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(cleaned);
+}
+
+function buildPrompt(signals) {
+  // Keep prompt tiny — just the key phishing signals
+  return `URL: ${signals.url}
+Title: ${signals.title}
+Has password form: ${signals.hasLoginForm}
+Has favicon: ${signals.hasFavicon}
+Iframes: ${signals.iframeCount}
+External links: ${signals.externalLinkCount} of ${signals.linkCount} total
+Page text snippet: ${signals.bodyText.slice(0, 300)}`;
+}
+
+// ── Message Handler ───────────────────────────────────────────────────────────
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type !== "ANALYZE_PAGE") return false;
+
+  console.log("[PhishGuard] Received ANALYZE_PAGE for:", message.payload?.url);
+
+  handleAnalysis(message.payload)
+    .then((result) => {
+      console.log("[PhishGuard] Analysis complete:", result);
+      sendResponse(result);
+    })
+    .catch((err) => {
+      console.error("[PhishGuard] Analysis error:", err);
+      sendResponse({ error: err.message });
+    });
+
+  return true;
+});
+
+async function handleAnalysis(signals) {
+  const cached = analysisCache.get(signals.url);
+  if (!signals.forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    console.log("[PhishGuard] Returning cached result for:", signals.url);
+    return cached.result;
+  }
+
+  const { apiKey } = await chrome.storage.sync.get("apiKey");
+  if (!apiKey) {
+    return {
+      isPhishing: false,
+      confidence: "low",
+      reason: "No API key configured. Visit extension options to add one.",
+    };
+  }
+
+  const result = await analyzeWithClaude(signals, apiKey);
+  analysisCache.set(signals.url, { result, timestamp: Date.now() });
+  return result;
+}
