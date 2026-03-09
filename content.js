@@ -154,7 +154,17 @@ async function runAnalysis(forceRefresh = false) {
     if (!result) return;
 
     if (result.isPhishing) {
-      showWarningBanner(result);
+      const { detectionMode, showReason } = await chrome.storage.sync.get(["detectionMode", "showReason"]);
+      const mode = detectionMode || "passive1";
+      const includeReason = showReason !== false;
+      const warningText = includeReason ? result.reason : "Phishing detected.";
+
+      if (mode === "passive1") {
+        showWarningBanner({ ...result, reason: warningText });
+      } else if (mode === "passive2") {
+        alert(`⚠️ PhishGuard: Phishing Detected\n\n${warningText}`);
+      }
+      // mode === "manual": do nothing, popup shows the result
     } else {
       removeWarningBanner();
     }

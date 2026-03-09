@@ -1,55 +1,57 @@
 /**
  * background.js — Service worker.
- * Receives page signals from content.js, calls Claude API, returns verdict.
+ * Receives page signals from content.js, calls Gemini API, returns verdict.
  */
 
-const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
-const CLAUDE_MODEL = "claude-haiku-4-5";
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_API_URL = (key) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
 
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const analysisCache = new Map();
 
-// ── Claude API Call ───────────────────────────────────────────────────────────
+// ── Gemini API Call ───────────────────────────────────────────────────────────
 
-async function analyzeWithClaude(signals, apiKey) {
+async function analyzeWithGemini(signals, apiKey) {
   const prompt = buildPrompt(signals);
-  console.log("[PhishGuard] Sending request to Claude for:", signals.url);
+  console.log("[PhishGuard] Sending request to Gemini for:", signals.url);
   console.log("[PhishGuard] Prompt length:", prompt.length, "chars");
 
-  const response = await fetch(CLAUDE_API_URL, {
+  const response = await fetch(GEMINI_API_URL(apiKey), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: 128,
-      system: `You are a phishing detector. Reply with ONLY a JSON object, no markdown.
-Schema: {"isPhishing":boolean,"confidence":"high"|"medium"|"low","reason":"one sentence"}`,
-      messages: [{ role: "user", content: prompt }],
+      systemInstruction: {
+        parts: [{
+          text: `You are a phishing detector. Reply with ONLY a JSON object, no markdown.
+Schema: {"isPhishing":boolean,"confidence":"high"|"medium"|"low","reason":"one sentence"}`
+        }]
+      },
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        maxOutputTokens: 512,
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     }),
   });
 
-  console.log("[PhishGuard] Claude response status:", response.status);
+  console.log("[PhishGuard] Gemini response status:", response.status);
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`Claude API error ${response.status}: ${err}`);
+    throw new Error(`Gemini API error ${response.status}: ${err}`);
   }
 
   const data = await response.json();
-  const text = data.content.find((b) => b.type === "text")?.text ?? "";
-  console.log("[PhishGuard] Claude raw response:", text);
+  const parts = data.candidates?.[0]?.content?.parts ?? [];
+  const text = parts.find((p) => p.text)?.text ?? "";
+  console.log("[PhishGuard] Gemini raw response:", text);
 
   const cleaned = text.replace(/```json|```/g, "").trim();
   return JSON.parse(cleaned);
 }
 
 function buildPrompt(signals) {
-  // Keep prompt tiny — just the key phishing signals
   return `URL: ${signals.url}
 Title: ${signals.title}
 Has password form: ${signals.hasLoginForm}
@@ -95,7 +97,7 @@ async function handleAnalysis(signals) {
     };
   }
 
-  const result = await analyzeWithClaude(signals, apiKey);
+  const result = await analyzeWithGemini(signals, apiKey);
   analysisCache.set(signals.url, { result, timestamp: Date.now() });
   return result;
 }
