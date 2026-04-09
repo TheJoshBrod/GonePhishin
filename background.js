@@ -139,6 +139,21 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 });
 
+const CHAT_SYSTEM_PROMPT = `You are a cybersecurity expert helping a user understand why a webpage was flagged as phishing.
+
+You can highlight, annotate, or hide elements on the live page to visually explain your points.
+
+Always respond with ONLY a valid JSON object — no markdown fences:
+{"text":"your explanation (markdown supported)","actions":[{"type":"highlight|annotate|hide","selector":"css selector","label":"short label shown on page"}]}
+
+Action types:
+- highlight: amber outline + label on the element, scrolls it into view
+- annotate: blue info label placed after the element
+- hide: hides the element to show what a real site would not include
+
+"actions" is optional — omit or use [] if no DOM change is needed.
+Be specific to the actual page — reference the URL, brand being faked, etc.`;
+
 async function handleChat({ history }) {
   const { apiKey, claudeApiKey, useClaude } = await chrome.storage.sync.get(["apiKey", "claudeApiKey", "useClaude"]);
   if (!apiKey) throw new Error("No API key configured.");
@@ -147,6 +162,7 @@ async function handleChat({ history }) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }] },
       contents: history,
       generationConfig: {
         maxOutputTokens: 1024,
@@ -184,6 +200,7 @@ async function handleChat({ history }) {
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: 1024,
+        system: CHAT_SYSTEM_PROMPT,
         messages,
       }),
     });

@@ -86,7 +86,8 @@ function injectHighlightStyles() {
   const style = document.createElement("style");
   style.id = "phishguard-highlight-style";
   style.textContent = `
-    .phishguard-suspicious {
+    .phishguard-suspicious,
+    .phishguard-ai-highlight {
       outline: 3px solid #f59e0b !important;
       outline-offset: 3px;
     }
@@ -163,9 +164,66 @@ async function toggleHighlights() {
   }
 }
 
-// Listen for toggle from popup
+// ── AI DOM Actions ────────────────────────────────────────────────────────────
+
+let aiInjected = [];   // labels / badges added by AI
+let aiHidden = [];     // elements hidden by AI
+
+function clearAiActions() {
+  aiInjected.forEach((el) => el.remove());
+  aiInjected = [];
+  aiHidden.forEach((el) => { el.style.display = ""; });
+  aiHidden = [];
+  document.querySelectorAll(".phishguard-ai-highlight").forEach((el) =>
+    el.classList.remove("phishguard-ai-highlight")
+  );
+}
+
+function applyDomActions(actions) {
+  clearAiActions();
+  injectHighlightStyles();
+
+  let firstTarget = null;
+
+  actions.forEach(({ type, selector, label }) => {
+    let targets;
+    try { targets = document.querySelectorAll(selector); } catch { return; }
+
+    targets.forEach((el) => {
+      if (type === "highlight") {
+        el.classList.add("phishguard-ai-highlight");
+        if (label) {
+          const badge = document.createElement("div");
+          badge.className = "phishguard-highlight-label phishguard-injected";
+          badge.textContent = `⚠ ${label}`;
+          el.insertAdjacentElement("beforebegin", badge);
+          aiInjected.push(badge);
+        }
+        if (!firstTarget) firstTarget = el;
+      } else if (type === "annotate") {
+        const badge = document.createElement("div");
+        badge.className = "phishguard-highlight-label phishguard-injected";
+        badge.style.cssText = "background:#3b82f6;color:#fff;";
+        badge.textContent = `ℹ ${label}`;
+        el.insertAdjacentElement("afterend", badge);
+        aiInjected.push(badge);
+        if (!firstTarget) firstTarget = el;
+      } else if (type === "hide") {
+        el.style.display = "none";
+        aiHidden.push(el);
+      }
+    });
+  });
+
+  if (firstTarget) {
+    firstTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+// Listen for messages from popup
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "TOGGLE_HIGHLIGHTS") toggleHighlights();
+  if (message.type === "DOM_ACTIONS") applyDomActions(message.payload);
 });
 
 // ── Warning Banner ────────────────────────────────────────────────────────────

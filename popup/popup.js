@@ -289,8 +289,28 @@ async function chatSend(text) {
     if (reply.error) {
       appendChatMessage("assistant", `Error: ${reply.error}`);
     } else {
-      appendChatMessage("assistant", reply.text);
-      chatHistory.push({ role: "model", parts: [{ text: reply.text }] });
+      // Response may be JSON with { text, actions } or plain text
+      let replyText = reply.text;
+      let actions = [];
+      try {
+        const parsed = JSON.parse(reply.text.replace(/```json|```/g, "").trim());
+        if (parsed.text) {
+          replyText = parsed.text;
+          actions = parsed.actions ?? [];
+        }
+      } catch {
+        // plain text — use as-is
+      }
+
+      appendChatMessage("assistant", replyText);
+      chatHistory.push({ role: "model", parts: [{ text: replyText }] });
+
+      if (actions.length > 0) {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.id) {
+          chrome.tabs.sendMessage(tab.id, { type: "DOM_ACTIONS", payload: actions });
+        }
+      }
     }
   } catch (err) {
     thinking.remove();
