@@ -133,7 +133,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 });
 
 async function handleChat({ history }) {
-  const { apiKey } = await chrome.storage.sync.get("apiKey");
+  const { apiKey, claudeApiKey, useClaude } = await chrome.storage.sync.get(["apiKey", "claudeApiKey", "useClaude"]);
   if (!apiKey) throw new Error("No API key configured.");
 
   const response = await fetch(GEMINI_API_URL(apiKey), {
@@ -148,15 +148,50 @@ async function handleChat({ history }) {
     }),
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Gemini API error ${response.status}: ${err}`);
+  if (response.ok) {
+    const data = await response.json();
+    const parts = data.candidates?.[0]?.content?.parts ?? [];
+    const text = parts.find((p) => p.text)?.text ?? "";
+    return { text };
   }
 
-  const data = await response.json();
-  const parts = data.candidates?.[0]?.content?.parts ?? [];
-  const text = parts.find((p) => p.text)?.text ?? "";
-  return { text };
+  const geminiErr = await response.text();
+  console.warn("[GonePhishin] Gemini chat failed:", geminiErr);
+
+  if (useClaude && claudeApiKey) {
+    console.log("[GonePhishin] Falling back to Claude for chat.");
+    // Convert Gemini history format to Claude messages format
+    const messages = history.map((m) => ({
+      role: m.role === "model" ? "assistant" : "user",
+      content: m.parts.map((p) => p.text).join(""),
+    }));
+
+    const claudeResponse = await fetch(CLAUDE_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": claudeApiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 1024,
+        messages,
+      }),
+    });
+
+    if (!claudeResponse.ok) {
+      const err = await claudeResponse.text();
+      throw new Error(`Claude API error ${claudeResponse.status}: ${err}`);
+    }
+
+    const claudeData = await claudeResponse.json();
+    const text = claudeData.content?.[0]?.text ?? "";
+    return { text };
+  }
+
+  throw new Error(`Gemini API error ${response.status}: ${geminiErr}`);
 }
 
 async function handleAnalysis(signals) {
