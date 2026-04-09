@@ -262,6 +262,18 @@ function appendChatMessage(role, text) {
   return bubble;
 }
 
+function extractActions(fullText) {
+  const match = fullText.match(/```phishguard-actions\s*([\s\S]*?)```/);
+  if (!match) return { text: fullText, actions: [] };
+  try {
+    const actions = JSON.parse(match[1].trim());
+    const text = fullText.slice(0, match.index).trimEnd();
+    return { text, actions };
+  } catch {
+    return { text: fullText, actions: [] };
+  }
+}
+
 async function chatSend(text) {
   if (!text.trim() || !pageContext) return;
 
@@ -269,56 +281,48 @@ async function chatSend(text) {
   chatInput.value = "";
   chatInput.style.height = "auto";
   chatSendBtn.disabled = true;
-
-  const thinking = document.createElement("div");
-  thinking.className = "chat-message assistant thinking";
-  thinking.innerHTML = `<div class="chat-message-role">GonePhishin AI</div><div class="chat-bubble">Thinking...</div>`;
-  chatMessages.appendChild(thinking);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-
   chatHistory.push({ role: "user", parts: [{ text }] });
 
-  try {
-    const reply = await chrome.runtime.sendMessage({
-      type: "CHAT_MESSAGE",
-      payload: { history: chatHistory },
-    });
+  // Create an empty streaming bubble immediately
+  const wrapper = document.createElement("div");
+  wrapper.className = "chat-message assistant";
+  wrapper.innerHTML = `<div class="chat-message-role">GonePhishin AI</div><div class="chat-bubble"></div>`;
+  chatMessages.appendChild(wrapper);
+  const bubble = wrapper.querySelector(".chat-bubble");
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    thinking.remove();
+  let buffer = "";
 
-    if (reply.error) {
-      appendChatMessage("assistant", `Error: ${reply.error}`);
-    } else {
-      // Response may be JSON with { text, actions } or plain text
-      let replyText = reply.text;
-      let actions = [];
-      try {
-        const parsed = JSON.parse(reply.text.replace(/```json|```/g, "").trim());
-        if (parsed.text) {
-          replyText = parsed.text;
-          actions = parsed.actions ?? [];
-        }
-      } catch {
-        // plain text — use as-is
-      }
+  const port = chrome.runtime.connect({ name: "chat-stream" });
+  port.postMessage({ history: chatHistory });
 
-      appendChatMessage("assistant", replyText);
-      chatHistory.push({ role: "model", parts: [{ text: replyText }] });
+  port.onMessage.addListener(async (msg) => {
+    if (msg.chunk) {
+      buffer += msg.chunk;
+      bubble.innerHTML = renderMarkdown(buffer);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    } else if (msg.done) {
+      const { text: cleanText, actions } = extractActions(buffer);
+      bubble.innerHTML = renderMarkdown(cleanText);
+      chatHistory.push({ role: "model", parts: [{ text: cleanText }] });
 
       if (actions.length > 0) {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tab?.id) {
-          chrome.tabs.sendMessage(tab.id, { type: "DOM_ACTIONS", payload: actions });
-        }
+        if (tab?.id) chrome.tabs.sendMessage(tab.id, { type: "DOM_ACTIONS", payload: actions });
       }
-    }
-  } catch (err) {
-    thinking.remove();
-    appendChatMessage("assistant", `Error: ${err.message}`);
-  }
 
-  chatSendBtn.disabled = false;
-  chatInput.focus();
+      chatSendBtn.disabled = false;
+      chatInput.focus();
+    } else if (msg.error) {
+      bubble.textContent = `Error: ${msg.error}`;
+      chatSendBtn.disabled = false;
+      chatInput.focus();
+    }
+  });
+
+  port.onDisconnect.addListener(() => {
+    chatSendBtn.disabled = false;
+  });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

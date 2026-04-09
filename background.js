@@ -141,19 +141,155 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 const CHAT_SYSTEM_PROMPT = `You are a cybersecurity expert helping a user understand why a webpage was flagged as phishing.
 
-You can highlight, annotate, or hide elements on the live page to visually explain your points.
+You can highlight, annotate, or hide elements on the live page to visually explain your points. When you want to modify the page, append a fenced code block at the very end of your response:
 
-Always respond with ONLY a valid JSON object — no markdown fences:
-{"text":"your explanation (markdown supported)","actions":[{"type":"highlight|annotate|hide","selector":"css selector","label":"short label shown on page"}]}
+\`\`\`phishguard-actions
+[{"type":"highlight|annotate|hide","selector":"css selector","label":"short label shown on page"}]
+\`\`\`
 
 Action types:
 - highlight: amber outline + label on the element, scrolls it into view
 - annotate: blue info label placed after the element
 - hide: hides the element to show what a real site would not include
 
-"actions" is optional — omit or use [] if no DOM change is needed.
+Only include the actions block when referencing specific page elements. Otherwise respond in plain markdown.
 Be specific to the actual page — reference the URL, brand being faked, etc.`;
 
+function toClaudeMessages(history) {
+  return history.map((m) => ({
+    role: m.role === "model" ? "assistant" : "user",
+    content: m.parts.map((p) => p.text).join(""),
+  }));
+}
+
+// ── Streaming chat via long-lived port ────────────────────────────────────────
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== "chat-stream") return;
+
+  port.onMessage.addListener(async ({ history }) => {
+    const { apiKey, claudeApiKey, useClaude } = await chrome.storage.sync.get(["apiKey", "claudeApiKey", "useClaude"]);
+
+    if (!apiKey) {
+      port.postMessage({ error: "No API key configured." });
+      port.disconnect();
+      return;
+    }
+
+    try {
+      await streamChatGemini(history, apiKey, port);
+    } catch (geminiErr) {
+      console.warn("[GonePhishin] Gemini stream failed:", geminiErr.message);
+      if (useClaude && claudeApiKey) {
+        try {
+          await streamChatClaude(history, claudeApiKey, port);
+        } catch (claudeErr) {
+          port.postMessage({ error: claudeErr.message });
+          port.disconnect();
+        }
+      } else {
+        port.postMessage({ error: geminiErr.message });
+        port.disconnect();
+      }
+    }
+  });
+});
+
+async function streamChatGemini(history, apiKey, port) {
+  const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${apiKey}`;
+
+  const response = await fetch(streamUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }] },
+      contents: history,
+      generationConfig: { maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } },
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Gemini stream error ${response.status}: ${err}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop(); // keep incomplete line
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const raw = line.slice(6).trim();
+      if (!raw || raw === "[DONE]") continue;
+      try {
+        const json = JSON.parse(raw);
+        const chunk = json.candidates?.[0]?.content?.parts?.find((p) => p.text)?.text ?? "";
+        if (chunk) port.postMessage({ chunk });
+      } catch { /* malformed line — skip */ }
+    }
+  }
+
+  port.postMessage({ done: true });
+  port.disconnect();
+}
+
+async function streamChatClaude(history, apiKey, port) {
+  const response = await fetch(CLAUDE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 2048,
+      stream: true,
+      system: CHAT_SYSTEM_PROMPT,
+      messages: toClaudeMessages(history),
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Claude stream error ${response.status}: ${err}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const raw = line.slice(6).trim();
+      if (!raw || raw === "[DONE]") continue;
+      try {
+        const json = JSON.parse(raw);
+        if (json.type === "content_block_delta" && json.delta?.type === "text_delta") {
+          port.postMessage({ chunk: json.delta.text });
+        }
+      } catch { /* skip */ }
+    }
+  }
+
+  port.postMessage({ done: true });
+  port.disconnect();
+}
+
+// Keep non-streaming handleChat for any legacy callers (banner "Learn more" flow)
 async function handleChat({ history }) {
   const { apiKey, claudeApiKey, useClaude } = await chrome.storage.sync.get(["apiKey", "claudeApiKey", "useClaude"]);
   if (!apiKey) throw new Error("No API key configured.");
@@ -164,10 +300,7 @@ async function handleChat({ history }) {
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }] },
       contents: history,
-      generationConfig: {
-        maxOutputTokens: 1024,
-        thinkingConfig: { thinkingBudget: 0 },
-      },
+      generationConfig: { maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
     }),
   });
 
@@ -182,13 +315,6 @@ async function handleChat({ history }) {
   console.warn("[GonePhishin] Gemini chat failed:", geminiErr);
 
   if (useClaude && claudeApiKey) {
-    console.log("[GonePhishin] Falling back to Claude for chat.");
-    // Convert Gemini history format to Claude messages format
-    const messages = history.map((m) => ({
-      role: m.role === "model" ? "assistant" : "user",
-      content: m.parts.map((p) => p.text).join(""),
-    }));
-
     const claudeResponse = await fetch(CLAUDE_API_URL, {
       method: "POST",
       headers: {
@@ -201,7 +327,7 @@ async function handleChat({ history }) {
         model: CLAUDE_MODEL,
         max_tokens: 1024,
         system: CHAT_SYSTEM_PROMPT,
-        messages,
+        messages: toClaudeMessages(history),
       }),
     });
 
