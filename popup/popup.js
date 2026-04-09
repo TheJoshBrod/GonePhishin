@@ -11,6 +11,19 @@ const timestamp = document.getElementById("analyzed-at");
 const reanalyzeBtn = document.getElementById("reanalyze-btn");
 const optionsLink = document.getElementById("options-link");
 const learnMoreBtn = document.getElementById("learn-more-btn");
+const highlightBtn = document.getElementById("highlight-btn");
+
+let highlightsOn = false;
+
+highlightBtn.addEventListener("click", async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) return;
+  await chrome.tabs.sendMessage(tab.id, { type: "TOGGLE_HIGHLIGHTS" });
+  highlightsOn = !highlightsOn;
+  highlightBtn.textContent = highlightsOn
+    ? "✖ Remove highlights"
+    : "🔍 Highlight suspicious elements";
+});
 
 optionsLink.addEventListener("click", (e) => {
   e.preventDefault();
@@ -71,10 +84,13 @@ function renderResult(result) {
     icon.textContent = "🚨";
     label.textContent = "Phishing Detected";
     learnMoreBtn.classList.remove("hidden");
+    highlightBtn.classList.remove("hidden");
   } else {
     card.className = "card safe";
     icon.textContent = "✅";
     label.textContent = "Page Appears Safe";
+    learnMoreBtn.classList.add("hidden");
+    highlightBtn.classList.add("hidden");
   }
 
   reason.textContent = result.reason || "";

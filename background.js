@@ -130,6 +130,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       .catch((err) => sendResponse({ error: err.message }));
     return true;
   }
+
+  if (message.type === "HIGHLIGHT_REQUEST") {
+    handleHighlight(message.payload)
+      .then(sendResponse)
+      .catch((err) => sendResponse({ error: err.message }));
+    return true;
+  }
 });
 
 async function handleChat({ history }) {
@@ -192,6 +199,77 @@ async function handleChat({ history }) {
   }
 
   throw new Error(`Gemini API error ${response.status}: ${geminiErr}`);
+}
+
+async function handleHighlight({ signals, reason }) {
+  const { apiKey, claudeApiKey, useClaude } = await chrome.storage.sync.get(["apiKey", "claudeApiKey", "useClaude"]);
+  if (!apiKey) throw new Error("No API key configured.");
+
+  const prompt = `You flagged this page as phishing with this reasoning: "${reason}"
+
+Page details:
+- URL: ${signals.url}
+- Title: ${signals.title}
+- Iframes: ${signals.iframeCount}
+- Hidden inputs: ${signals.hiddenInputCount}
+- External links (sample): ${signals.externalLinks.slice(0, 5).join(", ") || "none"}
+- Page text snippet: ${signals.bodyText.slice(0, 400)}
+
+Now identify the specific elements on this page that are suspicious. For each element, write a reason that explains WHY it is dangerous in the full context of this specific attack — not just what the element is. Reference the URL, the brand being impersonated, where credentials would be sent, etc. Be explicit and specific.
+
+For example, instead of "Requests the user's password", say "Submitting this form sends your PayPal password to localhost, not to paypal.com — this is a credential-harvesting fake."
+
+Return ONLY a JSON object.
+Schema: {"elements":[{"selector":"CSS selector string","reason":"explicit contextual reason"}]}
+Use simple, broad selectors (e.g. "form", "iframe", 'input[type=\\"password\\"]'). Return at most 6 elements.`;
+
+  const systemPrompt = `You are a phishing analyst explaining to a non-technical user exactly why specific page elements are dangerous. Always reference the specific attack context (fake brand, suspicious URL, where data would be sent). Never give generic descriptions — be explicit and concrete. Reply with ONLY a JSON object, no markdown.
+Schema: {"elements":[{"selector":"string","reason":"string"}]}`;
+
+  let result;
+  try {
+    const response = await fetch(GEMINI_API_URL(apiKey), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 512, thinkingConfig: { thinkingBudget: 0 } },
+      }),
+    });
+
+    if (!response.ok) throw new Error(`Gemini error ${response.status}`);
+
+    const data = await response.json();
+    const text = (data.candidates?.[0]?.content?.parts ?? []).find((p) => p.text)?.text ?? "";
+    result = JSON.parse(text.replace(/```json|```/g, "").trim());
+  } catch (geminiErr) {
+    console.warn("[GonePhishin] Gemini highlight failed:", geminiErr.message);
+    if (!useClaude || !claudeApiKey) throw geminiErr;
+
+    const claudeResponse = await fetch(CLAUDE_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": claudeApiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 512,
+        system: systemPrompt,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (!claudeResponse.ok) throw new Error(`Claude error ${claudeResponse.status}`);
+    const claudeData = await claudeResponse.json();
+    const text = claudeData.content?.[0]?.text ?? "";
+    result = JSON.parse(text.replace(/```json|```/g, "").trim());
+  }
+
+  return result;
 }
 
 async function handleAnalysis(signals) {

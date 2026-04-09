@@ -76,6 +76,97 @@ function extractPageSignals() {
   };
 }
 
+// ── Element Highlighting ──────────────────────────────────────────────────────
+
+let highlightsActive = false;
+let cachedHighlightElements = null;
+
+function injectHighlightStyles() {
+  if (document.getElementById("phishguard-highlight-style")) return;
+  const style = document.createElement("style");
+  style.id = "phishguard-highlight-style";
+  style.textContent = `
+    .phishguard-suspicious {
+      outline: 3px solid #f59e0b !important;
+      outline-offset: 3px;
+    }
+    .phishguard-highlight-label {
+      display: inline-block;
+      background: #f59e0b;
+      color: #000;
+      font-size: 11px;
+      font-family: system-ui, sans-serif;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      margin: 4px 0 2px;
+      pointer-events: none;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function applyHighlights(elements) {
+  injectHighlightStyles();
+  elements.forEach(({ selector, reason }) => {
+    let targets;
+    try {
+      targets = document.querySelectorAll(selector);
+    } catch {
+      return; // bad selector from LLM — skip
+    }
+    targets.forEach((el) => {
+      el.classList.add("phishguard-suspicious");
+      const label = document.createElement("div");
+      label.className = "phishguard-highlight-label phishguard-injected";
+      label.textContent = `⚠ ${reason}`;
+      el.insertAdjacentElement("beforebegin", label);
+    });
+  });
+}
+
+function removeHighlights() {
+  document.querySelectorAll(".phishguard-suspicious").forEach((el) =>
+    el.classList.remove("phishguard-suspicious")
+  );
+  document.querySelectorAll(".phishguard-injected").forEach((el) => el.remove());
+}
+
+async function toggleHighlights() {
+  if (highlightsActive) {
+    removeHighlights();
+    highlightsActive = false;
+    return;
+  }
+
+  if (cachedHighlightElements) {
+    applyHighlights(cachedHighlightElements);
+    highlightsActive = true;
+    return;
+  }
+
+  // Ask the LLM to identify suspicious elements
+  const stored = await chrome.storage.local.get("chatContext");
+  const ctx = stored.chatContext;
+  if (!ctx) return;
+
+  const result = await chrome.runtime.sendMessage({
+    type: "HIGHLIGHT_REQUEST",
+    payload: { signals: ctx, reason: ctx.reason },
+  });
+
+  if (result?.elements?.length) {
+    cachedHighlightElements = result.elements;
+    applyHighlights(result.elements);
+    highlightsActive = true;
+  }
+}
+
+// Listen for toggle from popup
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "TOGGLE_HIGHLIGHTS") toggleHighlights();
+});
+
 // ── Warning Banner ────────────────────────────────────────────────────────────
 
 function showWarningBanner(result) {
@@ -100,28 +191,23 @@ function showWarningBanner(result) {
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
   `;
 
+  const btnStyle = `
+    border: 1px solid rgba(255,255,255,0.6);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  `;
+
   banner.innerHTML = `
     <span>
       ⚠️ <strong>GonePhishin Warning:</strong> This page may be a phishing attempt.
       <em style="opacity:0.9;">${result.reason}</em>
     </span>
     <span style="display:flex;gap:8px;flex-shrink:0;margin-left:12px;">
-      <button id="phishguard-learn" style="
-        background: rgba(255,255,255,0.15);
-        border: 1px solid rgba(255,255,255,0.6);
-        color: #fff;
-        padding: 4px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-      ">Learn more</button>
-      <button id="phishguard-dismiss" style="
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.6);
-        color: #fff;
-        padding: 4px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-      ">Dismiss</button>
+      <button id="phishguard-highlight" style="background:rgba(255,255,255,0.15);${btnStyle}">Highlight suspicious</button>
+      <button id="phishguard-learn" style="background:rgba(255,255,255,0.15);${btnStyle}">Learn more</button>
+      <button id="phishguard-dismiss" style="background:transparent;${btnStyle}">Dismiss</button>
     </span>
   `;
 
@@ -130,6 +216,10 @@ function showWarningBanner(result) {
     banner.remove()
   );
   document.getElementById("phishguard-learn").addEventListener("click", openChat);
+  document.getElementById("phishguard-highlight").addEventListener("click", async function () {
+    await toggleHighlights();
+    this.textContent = highlightsActive ? "Remove highlights" : "Highlight suspicious";
+  });
 }
 
 function removeWarningBanner() {
