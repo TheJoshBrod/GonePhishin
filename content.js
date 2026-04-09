@@ -146,18 +146,19 @@ async function toggleHighlights() {
   }
 
   // Ask the LLM to identify suspicious elements
-  const stored = await chrome.storage.local.get("chatContext");
-  const ctx = stored.chatContext;
-  if (!ctx) return;
+  const signals = extractPageSignals();
+  const stored = await chrome.storage.local.get(`result:${signals.url}`);
+  const result = stored[`result:${signals.url}`];
+  if (!result?.isPhishing) return;
 
-  const result = await chrome.runtime.sendMessage({
+  const response = await chrome.runtime.sendMessage({
     type: "HIGHLIGHT_REQUEST",
-    payload: { signals: ctx, reason: ctx.reason },
+    payload: { signals, reason: result.reason },
   });
 
-  if (result?.elements?.length) {
-    cachedHighlightElements = result.elements;
-    applyHighlights(result.elements);
+  if (response?.elements?.length) {
+    cachedHighlightElements = response.elements;
+    applyHighlights(response.elements);
     highlightsActive = true;
   }
 }
@@ -259,7 +260,7 @@ async function runAnalysis(forceRefresh = false) {
 
     if (result.isPhishing) {
       // Save context for the chat page
-      chrome.storage.local.set({ chatContext: { ...signals, ...result } });
+      chrome.storage.local.set({ [`chatContext:${signals.url}`]: { ...signals, ...result } });
 
       const { detectionMode, showReason } = await chrome.storage.sync.get(["detectionMode", "showReason"]);
       const mode = detectionMode || "passive1";

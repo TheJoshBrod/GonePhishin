@@ -7,29 +7,60 @@
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <div class="header">
-    <span class="logo">🛡️</span>
-    <h1>GonePhishin</h1>
+
+  <!-- ── Main view ── -->
+  <div id="main-view">
+    <div class="header">
+      <span class="logo">🛡️</span>
+      <h1>GonePhishin</h1>
+    </div>
+
+    <div id="status-card" class="card">
+      <div id="status-icon" class="status-icon">⏳</div>
+      <div id="status-label" class="status-label">Analyzing...</div>
+      <div id="status-reason" class="status-reason"></div>
+    </div>
+
+    <div class="meta">
+      <span id="confidence-badge" class="badge hidden"></span>
+      <span id="analyzed-at" class="timestamp"></span>
+    </div>
+
+    <div class="actions">
+      <button id="reanalyze-btn">Re-analyze page</button>
+      <a id="options-link" href="#">Settings</a>
+    </div>
+
+    <button id="learn-more-btn" class="learn-more hidden">💬 Ask AI why this is phishing</button>
+    <button id="highlight-btn" class="learn-more hidden">🔍 Highlight suspicious elements</button>
   </div>
 
-  <div id="status-card" class="card">
-    <div id="status-icon" class="status-icon">⏳</div>
-    <div id="status-label" class="status-label">Analyzing...</div>
-    <div id="status-reason" class="status-reason"></div>
-  </div>
+  <!-- ── Chat view ── -->
+  <div id="chat-view" class="hidden">
+    <div class="chat-topbar">
+      <button id="back-btn">← Back</button>
+      <div class="chat-topbar-info">
+        <div id="chat-url" class="chat-url"></div>
+        <span class="verdict-chip">🚨 Phishing Detected</span>
+      </div>
+    </div>
 
-  <div class="meta">
-    <span id="confidence-badge" class="badge hidden"></span>
-    <span id="analyzed-at" class="timestamp"></span>
-  </div>
+    <div id="chat-reason" class="chat-reason"></div>
 
-  <div class="actions">
-    <button id="reanalyze-btn">Re-analyze page</button>
-    <a id="options-link" href="#">Settings</a>
-  </div>
+    <div class="suggestions-row">
+      <button class="suggestion-btn" data-q="What specific signals made you think this is phishing?">What signals flagged this?</button>
+      <button class="suggestion-btn" data-q="How can I verify if this site is legitimate?">How do I verify?</button>
+      <button class="suggestion-btn" data-q="What should I do if I already entered my credentials?">I entered my info</button>
+      <button class="suggestion-btn" data-q="What does a real version of this site look like?">Show real site</button>
+    </div>
 
-  <button id="learn-more-btn" class="learn-more hidden">💬 Ask AI why this is phishing</button>
-  <button id="highlight-btn" class="learn-more hidden">🔍 Highlight suspicious elements</button>
+    <div id="chat-messages" class="chat-messages"></div>
+
+    <div class="chat-input-row">
+      <textarea id="chat-input" placeholder="Ask anything about this page..." rows="1"></textarea>
+      <button id="chat-send-btn">Send</button>
+    </div>
+  </div>
 
   <script src="popup.js"></script>
 </body>
