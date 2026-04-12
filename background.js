@@ -10,6 +10,70 @@ const GEMINI_API_URL = (key) =>
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const analysisCache = new Map();
 
+// ── Domain Whitelist ──────────────────────────────────────────────────────────
+
+const DEFAULT_WHITELIST = [
+  "google.com",
+  "youtube.com",
+  "gmail.com",
+  "github.com",
+  "stackoverflow.com",
+  "amazon.com",
+  "apple.com",
+  "microsoft.com",
+  "linkedin.com",
+  "reddit.com",
+  "wikipedia.org",
+  "netflix.com",
+  "twitter.com",
+  "x.com",
+  "facebook.com",
+  "instagram.com",
+  "whatsapp.com",
+  "zoom.us",
+  "slack.com",
+  "notion.so",
+  "dropbox.com",
+  "icloud.com",
+  "live.com",
+  "outlook.com",
+  "office.com",
+  "bing.com",
+  "yahoo.com",
+  "twitch.tv",
+  "spotify.com",
+  "discord.com",
+  "stripe.com",
+  "paypal.com",
+  "chase.com",
+  "bankofamerica.com",
+  "wellsfargo.com",
+  "nytimes.com",
+  "bbc.com",
+  "cnn.com",
+  "medium.com",
+  "cloudflare.com",
+  "aws.amazon.com",
+];
+
+function domainMatchesEntry(hostname, entry) {
+  return hostname === entry || hostname.endsWith("." + entry);
+}
+
+async function isWhitelisted(url) {
+  try {
+    const hostname = new URL(url).hostname;
+    if (DEFAULT_WHITELIST.some((d) => domainMatchesEntry(hostname, d))) {
+      return true;
+    }
+    const { customWhitelist } = await chrome.storage.sync.get("customWhitelist");
+    if (Array.isArray(customWhitelist)) {
+      return customWhitelist.some((d) => domainMatchesEntry(hostname, d));
+    }
+  } catch { /* invalid URL */ }
+  return false;
+}
+
 // ── Gemini API Call ───────────────────────────────────────────────────────────
 
 async function analyzeWithGemini(signals, apiKey) {
@@ -416,6 +480,16 @@ Schema: {"elements":[{"selector":"string","reason":"string"}]}`;
 }
 
 async function handleAnalysis(signals) {
+  if (await isWhitelisted(signals.url)) {
+    console.log("[GonePhishin] Skipping analysis — whitelisted:", signals.url);
+    return {
+      isPhishing: false,
+      confidence: "high",
+      reason: "This domain is on your whitelist.",
+      whitelisted: true,
+    };
+  }
+
   const cached = analysisCache.get(signals.url);
   if (!signals.forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     console.log("[GonePhishin] Returning cached result for:", signals.url);

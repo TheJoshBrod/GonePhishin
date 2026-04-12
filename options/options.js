@@ -90,3 +90,43 @@ saveBehaviorBtn.addEventListener("click", () => {
     showReason: showReasonToggle.checked,
   }, () => flash(behaviorSaved));
 });
+
+// ── Whitelist ─────────────────────────────────────────────────────────────────
+
+const DEFAULT_WHITELIST = [
+  "google.com", "youtube.com", "gmail.com", "github.com", "stackoverflow.com",
+  "amazon.com", "apple.com", "microsoft.com", "linkedin.com", "reddit.com",
+  "wikipedia.org", "netflix.com", "twitter.com", "x.com", "facebook.com",
+  "instagram.com", "whatsapp.com", "zoom.us", "slack.com", "notion.so",
+  "dropbox.com", "icloud.com", "live.com", "outlook.com", "office.com",
+  "bing.com", "yahoo.com", "twitch.tv", "spotify.com", "discord.com",
+  "stripe.com", "paypal.com", "chase.com", "bankofamerica.com",
+  "wellsfargo.com", "nytimes.com", "bbc.com", "cnn.com", "medium.com",
+  "cloudflare.com", "aws.amazon.com",
+];
+
+const defaultWhitelistEl  = document.getElementById("default-whitelist");
+const customWhitelistEl   = document.getElementById("custom-whitelist");
+const saveWhitelistBtn    = document.getElementById("save-whitelist-btn");
+const whitelistSaved      = document.getElementById("whitelist-saved");
+
+DEFAULT_WHITELIST.forEach((d) => {
+  const chip = document.createElement("span");
+  chip.className = "chip";
+  chip.textContent = d;
+  defaultWhitelistEl.appendChild(chip);
+});
+
+chrome.storage.sync.get("customWhitelist", (data) => {
+  if (Array.isArray(data.customWhitelist) && data.customWhitelist.length) {
+    customWhitelistEl.value = data.customWhitelist.join("\n");
+  }
+});
+
+saveWhitelistBtn.addEventListener("click", () => {
+  const domains = customWhitelistEl.value
+    .split("\n")
+    .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, ""))
+    .filter(Boolean);
+  chrome.storage.sync.set({ customWhitelist: domains }, () => flash(whitelistSaved));
+});

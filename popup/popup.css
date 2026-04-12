@@ -54,6 +54,10 @@ h1 {
   border-color: #d97706;
 }
 
+.card.whitelisted {
+  border-color: #2563eb;
+}
+
 .status-icon {
   font-size: 36px;
   margin-bottom: 8px;

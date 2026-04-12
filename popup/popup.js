@@ -76,7 +76,13 @@ function renderResult(result) {
     return;
   }
 
-  if (result.isPhishing) {
+  if (result.whitelisted) {
+    card.className = "card safe";
+    icon.textContent = "🛡️";
+    label.textContent = "Whitelisted Domain";
+    learnMoreBtn.classList.add("hidden");
+    highlightBtn.classList.add("hidden");
+  } else if (result.isPhishing) {
     card.className = "card phishing";
     icon.textContent = "🚨";
     label.textContent = "Phishing Detected";

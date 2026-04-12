@@ -148,6 +148,49 @@
     .toggle-desc  { font-size: 12px; color: #9ca3af; margin-top: 2px; }
 
     a { color: #2563eb; font-size: 13px; }
+
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: ui-monospace, monospace;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+
+    textarea:focus { border-color: #2563eb; }
+
+    .defaults-details { margin-bottom: 4px; }
+
+    .defaults-details summary {
+      font-size: 13px;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .defaults-details summary:hover { color: #374151; }
+
+    .defaults-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 10px 0;
+    }
+
+    .defaults-list .chip {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 12px;
+      color: #475569;
+      font-family: ui-monospace, monospace;
+    }
   </style>
 </head>
 <body>
@@ -267,6 +310,28 @@
     <div class="section-footer">
       <button id="save-behavior-btn">Save Behavior</button>
       <span class="saved-indicator" id="behavior-saved">✓ Saved</span>
+    </div>
+  </div>
+
+  <!-- ── Whitelist ── -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Domain Whitelist</h2>
+      <div class="section-desc">Domains on the whitelist skip AI analysis entirely — saves API calls and reduces false positives</div>
+    </div>
+
+    <details class="defaults-details">
+      <summary>Built-in whitelist (40 domains)</summary>
+      <div class="defaults-list" id="default-whitelist"></div>
+    </details>
+
+    <label for="custom-whitelist" style="margin-top:14px;">Your custom domains</label>
+    <textarea id="custom-whitelist" rows="4" placeholder="example.com&#10;mycompany.org&#10;internal.tools"></textarea>
+    <p class="hint">One domain per line. Subdomains are matched automatically (e.g. <code>company.com</code> covers <code>mail.company.com</code>).</p>
+
+    <div class="section-footer">
+      <button id="save-whitelist-btn">Save Whitelist</button>
+      <span class="saved-indicator" id="whitelist-saved">&#10003; Whitelist saved</span>
     </div>
   </div>
 
