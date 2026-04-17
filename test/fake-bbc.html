@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BBC News - Home</title>
+  <link rel="icon" href="https://www.bbc.co.uk/favicon.ico" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Noto+Sans:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 15px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { display: block; }
+
+    /* ── Top utility bar ── */
+    .util-bar {
+      background: #1a1a1a;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    .util-bar a { color: #ccc; }
+    .util-bar a:hover { color: #fff; }
+    .util-bar .register-btn { color: #fff; transition: background 0.15s, border-color 0.15s; }
+    .util-bar .register-btn:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+
+    .util-bar .bbc-logo-small {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      border: 2px solid #fff;
+      padding: 1px 5px;
+      line-height: 1.2;
+      margin-right: 8px;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+
+    /* ── Main header ── */
+    .main-header {
+      background: #b80000;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .bbc-logo-wrap {
+      background: #b80000;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .bbc-logo {
+      font-size: 36px;
+      font-weight: 900;
+      color: #fff;
+      border: 3px solid #fff;
+      padding: 4px 10px;
+      line-height: 1;
+      letter-spacing: 1px;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+
+    .header-nav-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .nav-link {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover { border-bottom-color: rgba(255,255,255,0.6); }
+    .nav-link.active { border-bottom-color: #fff; }
+
+    .header-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 8px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      font-size: 13px;
+    }
+
+    .header-actions-row a {
+      color: #fff;
+      opacity: 0.85;
+    }
+
+    .header-actions-row a:hover { opacity: 1; }
+
+    .header-search-form {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 2px;
+      padding: 4px 10px;
+      gap: 8px;
+    }
+
+    .header-search-form input {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      width: 160px;
+      font-family: inherit;
+    }
+
+    .header-search-form input::placeholder { color: rgba(255,255,255,0.7); }
+
+    /* ── Breaking ticker ── */
+    .ticker {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .ticker-close {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: #ccc;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .ticker-close:hover { color: #fff; }
+
+    .ticker-label {
+      background: #b80000;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    /* ── Page wrap ── */
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── Hero grid ── */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 4px;
+      margin: 4px 0;
+    }
+
+    .hero-main {
+      grid-row: 1 / 3;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .hero-main img {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .hero-main:hover img { transform: scale(1.02); }
+
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.82));
+      padding: 40px 20px 20px;
+      color: #fff;
+    }
+
+    .tag {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      color: #ffcdd2;
+    }
+
+    .hero-title {
+      font-family: 'Noto Serif', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .side-story {
+      background: #1a1a1a;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .side-story img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.55;
+      transition: opacity 0.2s;
+      position: absolute;
+      top: 0; left: 0;
+    }
+
+    .side-story:hover img { opacity: 0.45; }
+
+    .side-overlay {
+      position: relative;
+      z-index: 1;
+      padding: 16px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      color: #fff;
+      min-height: 206px;
+    }
+
+    .side-title {
+      font-family: 'Noto Serif', Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    /* ── Section divider ── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 16px;
+    }
+
+    .section-head h2 {
+      font-size: 20px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .section-head::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e8e8e8;
+    }
+
+    /* ── Story grid ── */
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .story-card {
+      cursor: pointer;
+    }
+
+    .story-card img {
+      width: 100%;
+      height: 152px;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    .story-card .tag { color: #b80000; }
+    .story-card .tag:hover { text-decoration: underline; }
+
+    .story-card h3 {
+      font-family: 'Noto Serif', Georgia, serif;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 6px;
+      color: #1a1a1a;
+    }
+
+    .story-card:hover h3 { color: #b80000; }
+
+    .story-card p {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .story-time {
+      font-size: 12px;
+      color: #767676;
+      margin-top: 6px;
+    }
+
+    /* ── Two col ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+
+    /* ── List stories ── */
+    .list-story {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid #e8e8e8;
+      cursor: pointer;
+    }
+
+    .list-story:first-child { border-top: 1px solid #e8e8e8; }
+    .list-story:hover h3 { color: #b80000; }
+
+    .list-story img {
+      width: 120px;
+      height: 80px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .list-story h3 {
+      font-family: 'Noto Serif', Georgia, serif;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .list-story p {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    /* ── Most read ── */
+    .most-read-item {
+      display: flex;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #e8e8e8;
+      cursor: pointer;
+      align-items: flex-start;
+    }
+
+    .mr-num {
+      font-size: 32px;
+      font-weight: 700;
+      color: #e8e8e8;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 36px;
+    }
+
+    .mr-title {
+      font-family: 'Noto Serif', Georgia, serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .most-read-item:hover .mr-title { color: #b80000; }
+
+    /* ── Article view ── */
+    .article-view {
+      display: none;
+      padding: 24px 0;
+    }
+
+    .article-view.open { display: block; }
+
+    .article-back {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      color: #b80000;
+      cursor: pointer;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .article-wrap {
+      max-width: 640px;
+    }
+
+    .article-tag { color: #b80000; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+
+    .article-headline {
+      font-family: 'Noto Serif', Georgia, serif;
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .article-standfirst {
+      font-size: 18px;
+      color: #555;
+      line-height: 1.55;
+      margin-bottom: 20px;
+    }
+
+    .article-byline {
+      font-size: 13px;
+      color: #767676;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e8e8e8;
+      margin-bottom: 20px;
+    }
+
+    .article-byline strong { color: #1a1a1a; }
+
+    .article-hero-img {
+      width: 100%;
+      max-width: 960px;
+      height: 380px;
+      object-fit: cover;
+      margin-bottom: 8px;
+    }
+
+    .article-caption {
+      font-size: 12px;
+      color: #767676;
+      margin-bottom: 24px;
+    }
+
+    .article-body p {
+      font-size: 17px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+
+    .article-body h2 {
+      font-family: 'Noto Serif', Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 28px 0 12px;
+    }
+
+    .article-body blockquote {
+      border-left: 4px solid #b80000;
+      padding: 10px 20px;
+      margin: 24px 0;
+      font-size: 20px;
+      font-style: italic;
+      color: #333;
+      background: #fafafa;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #1a1a1a;
+      color: #ccc;
+      padding: 28px 20px;
+      margin-top: 32px;
+      font-size: 13px;
+    }
+
+    .footer-inner { max-width: 1280px; margin: 0 auto; }
+
+    .footer-logo {
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+      border: 2px solid #fff;
+      padding: 2px 8px;
+      display: inline-block;
+      margin-bottom: 16px;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+
+    .footer-links { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .footer-links a { color: #ccc; }
+    .footer-links a:hover { color: #fff; text-decoration: underline; }
+    .footer-legal { font-size: 12px; color: #767676; }
+  </style>
+</head>
+<body>
+
+<!-- Utility bar -->
+<div class="util-bar">
+  <span class="bbc-logo-small">BBC</span>
+  <a href="#">News</a>
+  <a href="#">Sport</a>
+  <a href="#">Weather</a>
+  <a href="#">iPlayer</a>
+  <a href="#">Sounds</a>
+  <a href="#">CBBC</a>
+  <a href="#">CBeebies</a>
+  <a href="#">Arts</a>
+  <a href="#">Food</a>
+  <a href="#">Bitesize</a>
+  <a href="fake-bbc-signup.html" style="margin-left:auto;">Sign in</a>
+  <a href="fake-bbc-signup.html" class="register-btn" style="border:1px solid #ccc; padding:2px 10px; border-radius:2px;">Register</a>
+</div>
+
+<!-- Main header -->
+<div class="main-header">
+  <div class="header-inner">
+    <div class="bbc-logo-wrap">
+      <div class="bbc-logo">BBC</div>
+    </div>
+    <div class="header-nav-wrap">
+      <div class="header-actions-row">
+        <a href="#">Home</a>
+        <a href="#">War in Ukraine</a>
+        <a href="#">Climate</a>
+        <a href="#">Video</a>
+        <a href="#">World</a>
+        <a href="#">UK</a>
+        <a href="#">Business</a>
+        <a href="#">Tech</a>
+        <a href="#">Science</a>
+        <a href="#">Stories</a>
+        <a href="#">Entertainment & Arts</a>
+        <a href="#">Health</a>
+        <a href="#">In Pictures</a>
+        <div class="header-search-form">
+          <input type="text" placeholder="Search" />
+          <span style="color:#fff;opacity:0.7;display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Breaking ticker -->
+<div class="ticker" id="ticker">
+  <span class="ticker-label">Breaking</span>
+  <span>G7 finance ministers reach preliminary agreement on global AI governance framework — live updates</span>
+  <button class="ticker-close" onclick="document.getElementById('ticker').style.display='none'" aria-label="Dismiss">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+
+<!-- Article view -->
+<div class="page">
+  <div class="article-view" id="article-view">
+    <button class="article-back" onclick="closeArticle()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> BBC News</button>
+    <div class="article-wrap">
+      <div class="article-tag" id="art-tag"></div>
+      <h1 class="article-headline" id="art-headline"></h1>
+      <p class="article-standfirst" id="art-standfirst"></p>
+      <div class="article-byline" id="art-byline"></div>
+    </div>
+    <img class="article-hero-img" id="art-img" src="" alt="" />
+    <p class="article-caption" id="art-caption"></p>
+    <div class="article-wrap">
+      <div class="article-body" id="art-body"></div>
+    </div>
+  </div>
+
+  <!-- Homepage -->
+  <div id="homepage">
+
+    <!-- Hero -->
+    <div class="hero-grid">
+      <div class="hero-main" onclick="openArticle('hero')">
+        <img src="https://picsum.photos/seed/genevacity/800/420" alt="Geneva summit" />
+        <div class="hero-overlay">
+          <div class="tag">World</div>
+          <div class="hero-title">Global leaders clash over AI regulation as models outpace policy</div>
+        </div>
+      </div>
+
+      <div class="side-story" onclick="openArticle('s1')">
+        <img src="https://picsum.photos/seed/economy99/600/220" alt="" />
+        <div class="side-overlay">
+          <div class="tag">Business</div>
+          <div class="side-title">UK economy unexpectedly contracts for second straight quarter</div>
+        </div>
+      </div>
+
+      <div class="side-story" onclick="openArticle('s2')">
+        <img src="https://picsum.photos/seed/science44/600/220" alt="" />
+        <div class="side-overlay">
+          <div class="tag">Science</div>
+          <div class="side-title">Scientists discover bacterium that breaks down plastics at room temperature</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Stories -->
+    <div class="section-head"><h2>Top Stories</h2></div>
+
+    <div class="story-grid">
+      <div class="story-card" onclick="openArticle('s3')">
+        <img src="https://picsum.photos/seed/ocean22/400/152" alt="" />
+        <div class="tag">Climate</div>
+        <h3>Record ocean temperatures for third year running, scientists warn</h3>
+        <p>Average sea surface temperatures exceed every previous record across all major ocean basins.</p>
+        <div class="story-time">3 hours ago</div>
+      </div>
+
+      <div class="story-card" onclick="openArticle('s4')">
+        <img src="https://picsum.photos/seed/rocket55/400/152" alt="" />
+        <div class="tag">Technology</div>
+        <h3>Private company tests reusable rocket engine designed for Mars missions</h3>
+        <p>The eight-minute burn at full thrust is a milestone for commercial deep-space propulsion.</p>
+        <div class="story-time">5 hours ago</div>
+      </div>
+
+      <div class="story-card" onclick="openArticle('s5')">
+        <img src="https://picsum.photos/seed/court77/400/152" alt="" />
+        <div class="tag">US & Canada</div>
+        <h3>Supreme Court agrees to hear landmark social media liability case</h3>
+        <p>The ruling could reshape how platforms moderate political speech ahead of the 2028 election.</p>
+        <div class="story-time">7 hours ago</div>
+      </div>
+
+      <div class="story-card" onclick="openArticle('s6')">
+        <img src="https://picsum.photos/seed/football33/400/152" alt="" />
+        <div class="tag">Sport</div>
+        <h3>Champions League draw produces the semi-final tie fans have waited a decade for</h3>
+        <p>Two of Europe's most storied clubs will meet at Wembley in May.</p>
+        <div class="story-time">9 hours ago</div>
+      </div>
+    </div>
+
+    <!-- Two col: UK + Most Read -->
+    <div class="two-col">
+      <div>
+        <div class="section-head"><h2>UK</h2></div>
+
+        <div class="list-story" onclick="openArticle('uk1')">
+          <img src="https://picsum.photos/seed/hospital11/120/80" alt="" />
+          <div>
+            <div class="tag">Health</div>
+            <h3>NHS announces longest waiting list reduction in five years</h3>
+            <p>Number of patients waiting more than 18 weeks has fallen for the fourth consecutive quarter.</p>
+            <div class="story-time">2 hours ago</div>
+          </div>
+        </div>
+
+        <div class="list-story" onclick="openArticle('uk2')">
+          <img src="https://picsum.photos/seed/wind88/120/80" alt="" />
+          <div>
+            <div class="tag">Energy</div>
+            <h3>Britain powered entirely by renewables for record 72 hours</h3>
+            <p>Wind accounted for 61% of supply during the record-breaking period.</p>
+            <div class="story-time">4 hours ago</div>
+          </div>
+        </div>
+
+        <div class="list-story" onclick="openArticle('uk3')">
+          <img src="https://picsum.photos/seed/houses66/120/80" alt="" />
+          <div>
+            <div class="tag">Economy</div>
+            <h3>House prices fall for fourth consecutive month in major UK cities</h3>
+            <p>Average London property now priced 4.2% below its January peak in nominal terms.</p>
+            <div class="story-time">6 hours ago</div>
+          </div>
+        </div>
+
+        <div class="list-story" onclick="openArticle('uk4')">
+          <img src="https://picsum.photos/seed/museum44/120/80" alt="" />
+          <div>
+            <div class="tag">Culture</div>
+            <h3>British Museum unveils largest gallery expansion in 50 years</h3>
+            <p>The new wing adds 10,000 sq metres and three previously unseen major collections.</p>
+            <div class="story-time">8 hours ago</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head"><h2>Most Read</h2></div>
+        <div class="most-read-item" onclick="openArticle('mr1')">
+          <div class="mr-num">1</div>
+          <div class="mr-title">The country where people work four days and report being happier and more productive</div>
+        </div>
+        <div class="most-read-item" onclick="openArticle('mr2')">
+          <div class="mr-num">2</div>
+          <div class="mr-title">Why scientists are reconsidering everything they thought they knew about sleep</div>
+        </div>
+        <div class="most-read-item" onclick="openArticle('mr3')">
+          <div class="mr-num">3</div>
+          <div class="mr-title">The hidden cost of cheap flights nobody talks about</div>
+        </div>
+        <div class="most-read-item" onclick="openArticle('mr4')">
+          <div class="mr-num">4</div>
+          <div class="mr-title">Japan's 'loneliness minister' says the policy worked — here's what others are copying</div>
+        </div>
+        <div class="most-read-item" onclick="openArticle('mr5')">
+          <div class="mr-num">5</div>
+          <div class="mr-title">A mathematician has found a new largest known prime. It has 41 million digits.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">BBC</div>
+    <div class="footer-links">
+      <a href="#">Terms of Use</a>
+      <a href="#">About the BBC</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Cookies</a>
+      <a href="#">Accessibility Help</a>
+      <a href="#">Parental Guidance</a>
+      <a href="#">Contact the BBC</a>
+      <a href="#">Get Personalised Newsletters</a>
+      <a href="#">Why you can trust the BBC</a>
+    </div>
+    <div class="footer-legal">
+      Copyright © 2026 BBC. The BBC is not responsible for the content of external sites.
+      Read about our approach to external linking.
+    </div>
+  </div>
+</footer>
+
+<script>
+  const articles = {
+    hero: { tag:'World', headline:'Global leaders clash over AI regulation as models outpace policy', standfirst:'Experts warn that existing regulatory frameworks are already obsolete as frontier AI systems advance faster than governments can legislate.', byline:'<strong>Sophie Hartmann</strong>, Technology Correspondent · 1 hour ago', img:'https://picsum.photos/seed/genevacity2/960/380', caption:'Delegates at the Geneva AI Summit faced stark disagreement over binding international standards.', body:`<p>World leaders gathered in Geneva this week for an emergency session on artificial intelligence governance, struggling to find common ground as experts warned the situation was approaching a critical inflection point.</p><p>The summit, convened at the request of twelve nations, was triggered by the release of several frontier AI systems over the past six months that demonstrably exceeded the capabilities anticipated by regulators.</p><h2>The core disagreement</h2><p>At the heart of the deadlock lies a fundamental tension: nations with leading AI industries — primarily the United States, China, and the United Kingdom — are reluctant to accept binding restrictions that could disadvantage their domestic developers, while smaller nations and the EU are pushing for hard capability limits enforced by an independent international body.</p><blockquote>"We cannot regulate a technology we do not yet fully understand. But we also cannot wait until we do." — Dr. Yuki Tanaka, UN Special Advisor on Emerging Technologies</blockquote><p>The proposed International AI Safety Agency, modelled loosely on the IAEA's role in nuclear oversight, has been backed by 34 countries but opposed by the US and China, who argue it would represent an unprecedented interference in domestic technology policy.</p><h2>What happens next</h2><p>Negotiations are expected to continue through the weekend, with a preliminary framework — likely non-binding — targeted for announcement by Sunday evening Geneva time. Several technology companies have issued statements welcoming international coordination in principle while cautioning against regulations that could "entrench incumbent players."</p>` },
+
+    s1: { tag:'Business', headline:'UK economy unexpectedly contracts for second straight quarter, raising recession fears', standfirst:'GDP shrank by 0.3% between January and March, following a 0.1% contraction in the final quarter of last year — the technical definition of a recession.', byline:'<strong>Marcus Okafor</strong>, Economics Editor · 4 hours ago', img:'https://picsum.photos/seed/londoncity/960/380', caption:'The figures surprised most forecasters, who had predicted flat growth for the first quarter.', body:`<p>Britain's economy entered a technical recession in the first quarter of this year after GDP contracted for the second consecutive three-month period, official data showed on Thursday, dealing a significant blow to the government ahead of expected local elections.</p><p>The Office for National Statistics said output fell by 0.3% between January and March, worse than the 0.1% decline most economists had forecast.</p><h2>What drove the decline?</h2><p>The contraction was driven primarily by a sharp fall in manufacturing output — down 1.2% — and a slowdown in consumer-facing services. Construction activity also fell, partly attributed to wet weather through February and March.</p><blockquote>"This is a painful but relatively shallow recession. The question is how long it lasts." — Professor Alicia Reeve, London School of Economics</blockquote><p>The Chancellor is expected to make a statement to Parliament on Friday.</p>` },
+
+    s2: { tag:'Science', headline:'Scientists discover a bacterium that can break down common plastics at room temperature', standfirst:'The finding could open a new front in the fight against plastic pollution without energy-intensive industrial processes.', byline:'<strong>Dr. Amir Rashid</strong>, Science Reporter · 6 hours ago', img:'https://picsum.photos/seed/labscience/960/380', caption:'The bacterium was found in soil samples near a waste processing facility in Edinburgh.', body:`<p>Researchers at the University of Edinburgh have identified a strain of naturally occurring bacteria capable of breaking down polyethylene terephthalate — the plastic used in most drinks bottles — at room temperature without any chemical pre-treatment.</p><p>The findings, published in <em>Nature Microbiology</em>, describe a bacterium designated PE-12 that produces two enzymes working in tandem to dismantle the polymer chains that give plastic its durability.</p><h2>Faster than anything seen before</h2><p>In laboratory conditions, PE-12 degraded 94% of a standardised plastic film sample within 16 weeks — significantly faster than any previously documented biological process for plastic decomposition, which typically requires decades.</p><p>The researchers caution that scaling the process from laboratory to industrial application will require substantial further work.</p>` },
+
+    s3: { tag:'Climate', headline:'Record ocean temperatures recorded for third year running, scientists warn', standfirst:'Average sea surface temperatures have exceeded every previous record across all major ocean basins, with scientists warning of cascading effects on weather patterns and marine ecosystems.', byline:'<strong>Clara Osei</strong>, Environment Correspondent · 3 hours ago', img:'https://picsum.photos/seed/oceanblue/960/380', caption:'Satellite data has allowed scientists to monitor ocean temperatures with unprecedented precision.', body:`<p>Global average sea surface temperatures have exceeded all previous records for the third consecutive year, according to data released by the Copernicus Climate Change Service and corroborated by independent analysis from NOAA and the Japan Meteorological Agency.</p><p>The ocean absorbs approximately 90% of the excess heat trapped in the Earth system by rising greenhouse gas concentrations. This buffering effect has moderated the rate of atmospheric warming, but scientists warn the ocean's capacity to continue absorbing heat at the current rate is not unlimited.</p><h2>Why it matters</h2><p>Higher sea surface temperatures directly fuel the intensity of tropical storms and hurricanes, disrupt the behaviour of the jet stream in ways that influence weather across temperate regions, and are already causing bleaching and death of coral reef systems at rates that exceed the reefs' ability to recover.</p>` },
+
+    s4: { tag:'Technology', headline:'Private company tests reusable rocket engine designed for Mars missions', standfirst:'The eight-minute burn at full thrust marks a milestone for commercial deep-space propulsion.', byline:'<strong>Priya Nair</strong>, Science & Technology Reporter · 5 hours ago', img:'https://picsum.photos/seed/rocketlaunch/960/380', caption:"The engine test was conducted at the company's facility in New Mexico and streamed live.", body:`<p>A California-based aerospace startup successfully completed a full-duration test firing of its reusable methane-oxygen rocket engine on Wednesday, a milestone the company says brings crewed Mars missions within the reach of the private sector for the first time.</p><p>The engine, designated Ares-7, burned for eight minutes and two seconds at 94% rated thrust before a planned shutdown, exceeding all performance benchmarks set for the test.</p><h2>Why this matters</h2><p>Unlike most existing rocket engines, the Ares-7 is designed from the ground up to be refuelled and reflown with minimal refurbishment — a critical requirement for any viable Mars mission architecture. The engine uses liquid methane and liquid oxygen, both of which can theoretically be produced on the Martian surface.</p><blockquote>"Eight minutes doesn't sound like much, but a trans-Mars injection burn is about eight and a half minutes. We just proved we can do that." — Dr. Elena Vasquez, Chief Propulsion Engineer</blockquote>` },
+
+    mr2: { tag:'Health', headline:'Why scientists are reconsidering everything they thought they knew about sleep', standfirst:"A wave of new research is overturning decades of conventional wisdom — from when we should sleep to what our brains actually do during it.", byline:'<strong>Dr. Lena Fischer</strong>, Health & Science Correspondent · 14 hours ago', img:'https://picsum.photos/seed/sleeping/960/380', caption:'New imaging technology has allowed researchers to observe the sleeping brain in unprecedented detail.', body:`<p>For most of the 20th century, the scientific consensus on sleep was relatively settled: adults need seven to nine hours, it comes in predictable cycles of NREM and REM, and its primary function is memory consolidation and physical repair. New research is dismantling each of those assumptions.</p><h2>The glymphatic revolution</h2><p>Perhaps the most significant shift has come from the discovery of the glymphatic system — a waste-clearance network that operates primarily during sleep. During deep sleep, cerebrospinal fluid flows through channels around blood vessels, flushing out metabolic waste products including amyloid-beta and tau proteins associated with Alzheimer's disease.</p><p>The implication is profound: sleep may function less as a passive rest state and more as an active maintenance process without which the brain accumulates damage.</p><blockquote>"We've been designing schools, workplaces, and medical systems around a sleep schedule that may only suit about a third of the population." — Professor James Holbrook, Oxford Sleep Research Centre</blockquote><h2>What remains unknown</h2><p>Despite these advances, fundamental questions remain. Scientists still cannot fully explain why consciousness is suspended during sleep, why dreaming occurs, or why total sleep deprivation is lethal in animals. Sleep science, it turns out, is still in its early chapters.</p>` },
+
+    uk1: { tag:'Health', headline:'NHS announces longest waiting list reduction in five years', standfirst:'The number of people waiting more than 18 weeks for treatment has fallen for the fourth consecutive quarter, health officials say.', byline:'<strong>Priya Nair</strong>, Health Reporter · 2 hours ago', img:'https://picsum.photos/seed/hospital22/960/380', caption:'', body:`<p>NHS England announced on Thursday that the total waiting list had fallen to its lowest level since early 2022, driven by a combination of targeted investment in surgical hubs, expanded use of independent sector capacity, and a year-on-year reduction in ambulance handover delays.</p><p>Health Secretary confirmed that the number of patients waiting more than 18 weeks — the standard NHS target — had fallen for the fourth consecutive quarter, a run of improvement not seen since before the pandemic.</p>` },
+
+    uk2: { tag:'Energy', headline:"Britain powered entirely by renewables for record 72 hours", standfirst:"Wind, solar, hydropower and bioenergy supplied all of Britain's electricity demand for a record 72-hour period.", byline:'<strong>Dr. Lena Fischer</strong>, Energy Reporter · 4 hours ago', img:'https://picsum.photos/seed/windturbine/960/380', caption:'', body:`<p>For 72 consecutive hours last week, Britain's electricity grid ran entirely on renewable sources — the longest such period since records began, according to National Grid ESO. The record was set during a spell of strong winds across the North Sea combined with unusually high solar output in southern England.</p><p>Wind generation accounted for 61% of supply during the period, with offshore wind turbines running at or near capacity. Solar contributed 22%, hydroelectric power 9%, and biomass the remainder.</p>` },
+
+    mr1: { tag:'Work & Careers', headline:'The country where people work four days and report being happier and more productive', standfirst:"Iceland's four-day week pilot, now entering its fifth year, has produced results prompting governments worldwide to look seriously at the model.", byline:'<strong>Clara Osei</strong>, Features Writer · 16 hours ago', img:'https://picsum.photos/seed/iceland/960/380', caption:'', body:`<p>When Iceland quietly began trialling a four-day working week in 2020, officials expected modest results. What they got instead was a data set that has since been cited in parliaments from Wellington to Ottawa.</p><p>Five years in, the evidence is unambiguous: workers reported significant improvements in wellbeing, work-life balance, and stress levels, while productivity measured by output per hour worked either held steady or improved in the majority of participating organisations.</p><h2>What actually changed</h2><p>The reduction in hours was accompanied, in most successful cases, by a fundamental rethinking of how meetings were conducted, how work was tracked, and which tasks were genuinely necessary. Organisations that simply compressed five days into four without changing anything else tended to report higher stress rather than lower.</p>` },
+
+    mr3: { tag:'Travel', headline:'The hidden cost of cheap flights nobody talks about', standfirst:'Budget airlines have democratised air travel, but the full cost — to passengers, to workers, and to the climate — is rarely captured in the headline price.', byline:'<strong>James Wilkins</strong>, Travel Correspondent · 18 hours ago', img:'https://picsum.photos/seed/airplane/960/380', caption:'', body:`<p>The £19 flight to Malaga looks like a bargain. In one narrow sense — the financial transaction between passenger and airline — it is. But the economics of ultra-low-cost aviation rest on a set of externalities that are, by design, invisible at the point of purchase.</p><p>Ground handling and cabin crew at many budget carriers are employed on contracts that guarantee zero hours, meaning airlines carry essentially no labour cost during slow periods. The infrastructure costs of secondary airports — often public, often loss-making — are borne by local governments rather than the carriers who depend on them. And the climate cost of aviation emissions remains largely unpriced in European markets.</p>` },
+
+    mr4: { tag:'World', headline:"Japan's loneliness minister says the policy worked", standfirst:'Six years after creating the world\'s first ministerial post dedicated to loneliness, Japan says measurable progress has been made — and other countries are copying the model.', byline:'<strong>Dr. Amir Rashid</strong>, World Affairs Correspondent · 20 hours ago', img:'https://picsum.photos/seed/japan/960/380', caption:'', body:`<p>When Japan created the world's first Ministry of Loneliness in 2020, following research showing that over 17 million Japanese adults felt "always or often lonely," the announcement was met with equal parts admiration and scepticism. Six years later, the minister responsible says the data justifies the experiment.</p><p>Self-reported loneliness in Japan has fallen by 11 percentage points since the ministry's inception, attributed to community initiatives, changes to workplace culture policy, and a public awareness campaign that reduced the stigma around admitting to social isolation.</p>` },
+
+    mr5: { tag:'Science', headline:'A mathematician has found a new largest known prime number. It has 41 million digits.', standfirst:'The number was discovered using a network of volunteer computers and was verified independently by three separate institutions.', byline:'<strong>Dr. Lena Fischer</strong>, Science Reporter · 22 hours ago', img:'https://picsum.photos/seed/mathematics/960/380', caption:'', body:`<p>A mathematician working as part of the Great Internet Mersenne Prime Search (GIMPS) project has discovered a new largest known prime number — a figure so large that if printed in standard font it would stretch for approximately 65 kilometres.</p><p>The number, which has 41,024,320 digits, is a Mersenne prime — a prime of the form 2ⁿ-1, where n itself is prime. It was found after 108 days of continuous computation on a network of volunteer computers.</p><h2>Why this matters</h2><p>Prime numbers of this scale have no immediate practical application — the largest primes used in cryptography are far smaller. The significance is primarily mathematical: Mersenne primes are extraordinarily rare, and each new one reveals something about the deep structure of numbers that pure mathematicians find genuinely illuminating.</p>` },
+
+    s5: { tag:'US & Canada', headline:'Supreme Court agrees to hear landmark social media liability case', standfirst:'The ruling could reshape how online platforms moderate political speech, with implications for the 2028 election cycle.', byline:'<strong>Marcus Okafor</strong>, Legal Affairs Editor · 7 hours ago', img:'https://picsum.photos/seed/uslaw/960/380', caption:'The case has attracted over 40 amicus briefs from technology companies and civil liberties groups.', body:`<p>The US Supreme Court agreed on Monday to hear a case that could fundamentally alter the legal framework governing how social media companies manage political speech on their platforms, potentially overturning or significantly narrowing the protections afforded by Section 230 of the Communications Decency Act.</p><p>The case has attracted extraordinary interest from across the political spectrum, with over 40 amicus briefs filed by groups ranging from the ACLU to the Heritage Foundation.</p>` },
+
+    s6: { tag:'Sport', headline:'Champions League draw produces the semi-final tie fans have waited a decade for', standfirst:"Two of European football's most storied clubs will meet in the semi-finals in a tie anticipated for years.", byline:'<strong>James Wilkins</strong>, Sport Correspondent · 9 hours ago', img:'https://picsum.photos/seed/football22/960/380', caption:'The draw ceremony took place in Nyon, Switzerland.', body:`<p>The UEFA Champions League semi-final draw on Friday produced the tie that fans across Europe had been hoping for: Real Madrid versus Bayern Munich, a fixture with a combined history stretching back 125 years and including some of the most dramatic moments in the competition's history.</p><p>The two clubs have met in the knockout stages of European competition on eleven previous occasions. Their most recent meeting, a semi-final three seasons ago, ended in a penalty shootout after a combined 3-3 aggregate score.</p>` },
+
+    uk3: { tag:'Economy', headline:'House prices fall for fourth consecutive month in major UK cities', standfirst:'Average prices in London, Manchester and Birmingham have fallen by a combined 4.2% since the start of the year.', byline:'<strong>Marcus Okafor</strong>, Economics Editor · 6 hours ago', img:'https://picsum.photos/seed/londonhouses/960/380', caption:'', body:`<p>House prices in Britain's three largest cities have fallen for the fourth consecutive month, with the average London property now priced 4.2% below its January peak — the largest sustained decline since the financial crisis.</p><p>Economists attribute the correction to still-elevated mortgage rates, a softening labour market, and a substantial increase in the supply of properties coming to market as buy-to-let landlords exit the sector in response to regulatory and tax changes introduced over the past three years.</p>` },
+
+    uk4: { tag:'Culture', headline:'British Museum unveils largest gallery expansion in 50 years', standfirst:'The new wing, five years in construction, adds 10,000 square metres of exhibition space and houses three major previously unseen collections.', byline:'<strong>Sophie Hartmann</strong>, Arts & Culture Correspondent · 8 hours ago', img:'https://picsum.photos/seed/museum99/960/380', caption:'', body:`<p>The British Museum opened its largest new gallery wing in half a century on Thursday, a £340 million development that adds 10,000 square metres of exhibition space and allows it to display large portions of its collection that have been in storage for decades.</p><p>The wing is organised around a central atrium flooded with natural light through a tessellated glass roof. Three major collections are housed in permanent galleries for the first time: the Sainsbury Collection of Oceanian Art, the Museum's holdings of Islamic scientific instruments, and a newly assembled survey of African textile traditions.</p>` }
+  };
+
+  function openArticle(key) {
+    const a = articles[key];
+    if (!a) return;
+    document.getElementById('art-tag').textContent = a.tag;
+    document.getElementById('art-headline').textContent = a.headline;
+    document.getElementById('art-standfirst').textContent = a.standfirst;
+    document.getElementById('art-byline').innerHTML = a.byline;
+    document.getElementById('art-img').src = a.img;
+    document.getElementById('art-caption').textContent = a.caption;
+    document.getElementById('art-body').innerHTML = a.body;
+    document.getElementById('article-view').classList.add('open');
+    document.getElementById('homepage').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function closeArticle() {
+    document.getElementById('article-view').classList.remove('open');
+    document.getElementById('homepage').style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

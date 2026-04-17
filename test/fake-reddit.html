@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>r/explainlikeimfive - Reddit</title>
+  <link rel="icon" href="https://www.redditstatic.com/shreddit/assets/favicon/64x64.png" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #dae0e6;
+      color: #0f1a1c;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Header ── */
+    .reddit-header {
+      background: #fff;
+      border-bottom: 1px solid #edeff1;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      gap: 12px;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .logo-svg { height: 26px; width: auto; color: #ff4500; }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ff4500;
+      letter-spacing: -0.5px;
+    }
+
+    .header-search-wrap {
+      flex: 1;
+      max-width: 690px;
+      position: relative;
+    }
+
+    .header-search {
+      width: 100%;
+      background: #f6f7f8;
+      border: 1px solid #edeff1;
+      border-radius: 20px;
+      padding: 8px 16px 8px 40px;
+      font-size: 14px;
+      color: #576f76;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .header-search:focus {
+      border-color: #0dd3bb;
+      background: #fff;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #576f76;
+      font-size: 15px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-login {
+      border: 1px solid #ff4500;
+      color: #ff4500;
+      background: transparent;
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-signup {
+      background: #ff4500;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-login:hover { background: #f9ede6; }
+    .btn-signup:hover { background: #e03d00; }
+
+    /* ── Sub banner ── */
+    .sub-banner {
+      background: linear-gradient(90deg, #ff6534 0%, #ff4500 100%);
+      height: 80px;
+    }
+
+    .sub-info-bar {
+      background: #fff;
+      border-bottom: 1px solid #edeff1;
+    }
+
+    .sub-info-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      height: 68px;
+    }
+
+    .sub-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      margin-bottom: -24px;
+      background: #ff4500;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .sub-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+    .sub-details {
+      padding-bottom: 12px;
+    }
+
+    .sub-name { font-size: 22px; font-weight: 700; color: #0f1a1c; }
+    .sub-handle { font-size: 13px; color: #576f76; margin-top: 2px; }
+
+    .sub-actions {
+      margin-left: auto;
+      padding-bottom: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-join {
+      background: #ff4500;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-create {
+      background: transparent;
+      border: 1px solid #0f1a1c;
+      color: #0f1a1c;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ── Layout ── */
+    .page-layout {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 312px;
+      gap: 24px;
+    }
+
+    /* ── Sort bar ── */
+    .sort-bar {
+      background: #fff;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .sort-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      color: #576f76;
+      padding: 6px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .sort-btn.active {
+      background: #e8f0fe;
+      color: #0045ac;
+    }
+
+    .sort-btn:hover:not(.active) { background: #f6f7f8; color: #0f1a1c; }
+
+    .create-post {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+    }
+
+    .avatar-stub {
+      width: 38px;
+      height: 38px;
+      border-radius: 4px;
+      background: #dae0e6;
+      border: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+
+    .create-input {
+      flex: 1;
+      background: #f6f7f8;
+      border: 1px solid #edeff1;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #576f76;
+      font-family: inherit;
+      cursor: text;
+    }
+
+    .create-input:focus { outline: none; border-color: #0dd3bb; }
+
+    /* ── Post card ── */
+    .post-card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: flex;
+      cursor: pointer;
+      transition: border-color 0.12s;
+    }
+
+    .post-card:hover { border-color: #818384; }
+    .post-card.expanded { border-color: #0079d3; }
+
+    .vote-col {
+      width: 40px;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px;
+      gap: 2px;
+      border-radius: 4px 0 0 4px;
+      flex-shrink: 0;
+    }
+
+    .upvote, .downvote {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #878a8c;
+      font-size: 16px;
+      padding: 4px;
+      border-radius: 2px;
+      line-height: 1;
+      font-family: inherit;
+    }
+
+    .upvote:hover { color: #ff4500; background: #fff8f6; }
+    .downvote:hover { color: #7193ff; background: #f3f6ff; }
+    .upvote.voted { color: #ff4500; }
+
+    .vote-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1c1c1c;
+    }
+
+    .post-body-wrap {
+      flex: 1;
+      padding: 8px;
+      min-width: 0;
+    }
+
+    .post-meta {
+      font-size: 12px;
+      color: #878a8c;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .post-meta .sub { font-weight: 700; color: #0f1a1c; }
+    .post-meta .sub:hover { text-decoration: underline; }
+    .post-meta .dot { margin: 0 2px; }
+
+    .post-flair {
+      background: #ff4500;
+      color: #fff;
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .post-title {
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: #0f1a1c;
+      margin-bottom: 8px;
+    }
+
+    .post-text {
+      font-size: 14px;
+      color: #3c3c3c;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .post-card.expanded .post-text { display: block; }
+
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .action-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: #878a8c;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .action-pill:hover { background: #f6f7f8; color: #1c1c1c; }
+
+    .post-thumb {
+      width: 96px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 2px;
+      margin: 8px 8px 8px 0;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+
+    /* ── Awards ── */
+    .award {
+      font-size: 13px;
+      margin-right: 2px;
+    }
+
+    /* ── Comments ── */
+    .comments-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .comments-box.open { display: block; }
+
+    .comments-sort {
+      font-size: 12px;
+      color: #878a8c;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .comments-sort select {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f1a1c;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .comment { margin-bottom: 16px; }
+
+    .comment-thread {
+      padding-left: 16px;
+      border-left: 2px solid #edeff1;
+      margin-top: 10px;
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    .c-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ff4500;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .c-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .c-user { font-weight: 700; color: #0f1a1c; font-size: 12px; }
+    .c-user:hover { text-decoration: underline; cursor: pointer; }
+    .c-points { color: #1c1c1c; font-weight: 700; }
+    .c-time { color: #878a8c; }
+    .c-op { background: #0045ac; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 2px; font-weight: 700; }
+
+    .c-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1c1c1c;
+      margin-left: 30px;
+    }
+
+    .c-actions {
+      display: flex;
+      gap: 2px;
+      margin-top: 4px;
+      margin-left: 30px;
+    }
+
+    .c-btn {
+      background: none;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: #878a8c;
+      padding: 4px 6px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .c-btn:hover { background: #f6f7f8; color: #1c1c1c; }
+
+    /* ── Sidebar ── */
+    .sidebar > * { margin-bottom: 16px; }
+
+    .sidebar-widget {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .widget-banner {
+      height: 64px;
+      background: linear-gradient(90deg, #ff6534, #ff4500);
+      position: relative;
+    }
+
+    .widget-body { padding: 12px; }
+
+    .community-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .community-desc {
+      font-size: 13px;
+      color: #3c3c3c;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 14px;
+    }
+
+    .stat-item strong { display: block; font-size: 16px; font-weight: 700; }
+    .stat-item span { font-size: 12px; color: #878a8c; }
+
+    .online-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #46d160;
+      margin-right: 4px;
+    }
+
+    .w-join {
+      width: 100%;
+      background: #ff4500;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      font-family: inherit;
+    }
+
+    .w-create {
+      width: 100%;
+      background: transparent;
+      border: 1px solid #0f1a1c;
+      color: #0f1a1c;
+      border-radius: 20px;
+      padding: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .rules-title {
+      font-size: 15px;
+      font-weight: 700;
+      padding: 12px;
+      border-bottom: 1px solid #edeff1;
+    }
+
+    .rule-item {
+      display: flex;
+      padding: 10px 12px;
+      border-bottom: 1px solid #edeff1;
+      font-size: 14px;
+      cursor: pointer;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rule-item:last-child { border-bottom: none; }
+    .rule-item:hover { background: #f6f7f8; }
+
+    .rule-num { color: #878a8c; margin-right: 8px; }
+
+    .related-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #878a8c;
+      padding: 12px 12px 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .related-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .related-sub:hover { background: #f6f7f8; }
+
+    .rsub-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .rsub-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+    .rsub-name { font-size: 14px; font-weight: 700; }
+    .rsub-members { font-size: 12px; color: #878a8c; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="reddit-header">
+  <div class="logo-wrap">
+    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 514 149">
+    <g style="fill: currentColor">
+      <path d="m71.62,45.92l-12.01,28.56c-1.51-.76-5.11-1.61-8.51-1.61s-6.81.85-10.12,2.46c-6.53,3.31-11.35,9.93-11.35,19.48v52.3H-.26V45.35h29.04v14.28h.57c6.81-9.08,17.21-15.79,30.74-15.79,4.92,0,9.65.95,11.54,2.08Z"></path>
+      <path d="m65.84,96.52c0-29.41,20.15-52.68,50.32-52.68,27.33,0,46.91,19.96,46.91,48.05,0,4.92-.47,9.55-1.51,14h-68.48c3.12,10.69,12.39,19.01,26.29,19.01,7.66,0,18.54-2.74,24.4-7.28l9.27,22.32c-8.61,5.86-21.75,8.7-33.29,8.7-32.25,0-53.91-20.81-53.91-52.11Zm26.67-9.36h43.03c0-13.05-8.89-19.96-19.77-19.96-12.3,0-20.62,7.94-23.27,19.96Z"></path>
+      <path d="m419.53-.37c10.03,0,18.25,8.23,18.25,18.25s-8.23,18.25-18.25,18.25-18.25-8.23-18.25-18.25S409.51-.37,419.53-.37Zm14.94,147.49h-29.89V45.35h29.89v101.77Z"></path>
+      <path d="m246,1.47l-.09,53.53h-.57c-8.23-7.85-17.12-11.07-28.75-11.07-28.66,0-47.67,23.08-47.67,52.3s17.78,52.4,46.72,52.4c12.11,0,23.55-4.16,30.93-13.62h.85v12.11h28.47V1.47h-29.89Zm1.42,121.39h-.99l-6.67-6.93c-4.34,4.33-10.28,6.93-17.22,6.93-14.64,0-24.88-11.58-24.88-26.6s10.24-26.6,24.88-26.6,24.88,11.58,24.88,26.6v26.6Z"></path>
+      <path d="m360.15,1.47l-.09,53.53h-.57c-8.23-7.85-17.12-11.07-28.75-11.07-28.66,0-47.67,23.08-47.67,52.3s17.78,52.4,46.72,52.4c12.11,0,23.55-4.16,30.93-13.62h.85v12.11h28.47V1.47h-29.89Zm1.28,121.39h-.99l-6.67-6.93c-4.34,4.33-10.28,6.93-17.22,6.93-14.64,0-24.88-11.58-24.88-26.6s10.24-26.6,24.88-26.6,24.88,11.58,24.88,26.6v26.6Z"></path>
+      <path d="m492.44,45.35h21.85v25.44h-21.85v76.33h-29.89v-76.33h-21.75v-25.44h21.75v-27.66h29.89v27.66Z"></path>
+    </g>
+  </svg>
+  </div>
+
+  <div class="header-search-wrap">
+    <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    <input class="header-search" type="text" placeholder="Search Reddit" />
+  </div>
+
+  <div class="header-right">
+    <button class="btn-login">Log In</button>
+    <button class="btn-signup" onclick="window.location.href='fake-reddit-signup.html'">Sign Up</button>
+  </div>
+</header>
+
+<!-- ── Subreddit banner ── -->
+<div class="sub-banner"></div>
+<div class="sub-info-bar">
+  <div class="sub-info-inner">
+    <div class="sub-icon">
+      <img src="https://a.thumbs.redditmedia.com/KZESzgF91cP3KEAR29JhCFmX0zxsPgY1sYhv7XCtiW0.png"
+           onerror="this.parentElement.style.background='#ff4500'" alt="r/eli5" />
+    </div>
+    <div class="sub-details">
+      <div class="sub-name">Explain Like I'm Five</div>
+      <div class="sub-handle">r/explainlikeimfive</div>
+    </div>
+    <div class="sub-actions">
+      <button class="btn-join">Join</button>
+      <button class="btn-create">Create Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main content ── -->
+<div class="page-layout">
+  <div class="feed-col">
+
+    <!-- Create post bar -->
+    <div class="create-post">
+      <div class="avatar-stub"></div>
+      <input class="create-input" type="text" placeholder="Create Post" readonly />
+    </div>
+
+    <!-- Sort bar -->
+    <div class="sort-bar">
+      <button class="sort-btn active" onclick="setSort(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8.5l-8 8h16z"/><path d="M12 4.5l-8 8h16z" opacity=".3"/></svg>
+        Hot
+      </button>
+      <button class="sort-btn" onclick="setSort(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 3" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
+        New
+      </button>
+      <button class="sort-btn" onclick="setSort(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17h4V9H3zm6 0h4V4h-4zm6 0h4v-8h-4z"/></svg>
+        Top
+      </button>
+      <button class="sort-btn" onclick="setSort(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+        Rising
+      </button>
+    </div>
+
+    <!-- Post 1 -->
+    <div class="post-card" id="p1" onclick="toggle('p1','c1')">
+      <div class="vote-col">
+        <button class="upvote" onclick="vote(event,this)">▲</button>
+        <span class="vote-num">34.2k</span>
+        <button class="downvote" onclick="vote(event,this)">▼</button>
+      </div>
+      <div class="post-body-wrap">
+        <div class="post-meta">
+          <span class="sub">r/explainlikeimfive</span>
+          <span class="dot">•</span>
+          Posted by <span style="margin-left:4px;">u/curious_kid_2099</span>
+          <span class="dot">•</span>
+          6 hours ago
+          <span class="award"><svg width="14" height="14" viewBox="0 0 24 24" fill="#ffb000"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></span><span class="award"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00b4ff"><path d="M12 1l2.1 6.4h6.8l-5.5 4 2.1 6.4L12 14l-5.5 3.8 2.1-6.4-5.5-4h6.8z"/></svg></span>
+          <span class="post-flair">ELI5</span>
+        </div>
+        <div class="post-title">Why does your stomach "growl" when you're hungry, but also sometimes when you're full?</div>
+        <div class="post-text">I've always noticed my stomach makes noise both when I'm starving AND right after eating a big meal. My friend said it's different sounds but they all sound the same to me. Is my stomach just always making noise and I only notice it sometimes?</div>
+        <div class="post-actions">
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 847 Comments</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Save</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+        </div>
+      </div>
+      <img class="post-thumb" src="https://picsum.photos/seed/stomach/192/144" alt="" onclick="event.stopPropagation()" />
+    </div>
+
+    <div class="comments-box" id="c1">
+      <div class="comments-sort">
+        Sort by: <select><option>Best</option><option>Top</option><option>New</option></select>
+      </div>
+
+      <div class="comment">
+        <div class="comment-header">
+          <div class="c-avatar"><img src="https://picsum.photos/seed/user1/48/48" alt="" /></div>
+          <span class="c-user">u/GutPhysicsProf</span>
+          <span class="c-points">18.4k points</span>
+          <span class="c-time">5 hours ago</span>
+          <span class="c-op">OP</span>
+        </div>
+        <div class="c-body">Your stomach and intestines are basically a long muscular tube that's always squeezing and churning — this is called <strong>peristalsis</strong>, and it never fully stops even when you're asleep. The sounds (technically called "borborygmi") happen when that squeezing pushes gas and liquid through the tube.<br><br>
+        When you're <em>hungry</em>, your brain sends a "get ready for food" signal — the stomach squeezes harder to clean itself out. Aggressive squeezing + air inside = loud rumble.<br><br>
+        When you're <em>full</em>, you've added food AND swallowed air while eating. The intestines are now pushing that mixture through, and the gas bubbles make noise too. Different cause, similar sound.</div>
+        <div class="c-actions">
+          <button class="c-btn">▲ 18.4k</button>
+          <button class="c-btn">Reply</button>
+          <button class="c-btn">Share</button>
+          <button class="c-btn">Report</button>
+        </div>
+
+        <div class="comment-thread">
+          <div class="comment">
+            <div class="comment-header">
+              <div class="c-avatar"><img src="https://picsum.photos/seed/user2/48/48" alt="" /></div>
+              <span class="c-user">u/curious_kid_2099</span>
+              <span class="c-points">3.2k points</span>
+              <span class="c-time">4 hours ago</span>
+            </div>
+            <div class="c-body">Wait so my stomach is literally never silent?? I'm going to be thinking about this all day</div>
+            <div class="c-actions"><button class="c-btn">▲ 3.2k</button><button class="c-btn">Reply</button></div>
+          </div>
+          <div class="comment-thread">
+            <div class="comment">
+              <div class="comment-header">
+                <div class="c-avatar"><img src="https://picsum.photos/seed/user1/48/48" alt="" /></div>
+                <span class="c-user">u/GutPhysicsProf</span>
+                <span class="c-points">7.1k points</span>
+                <span class="c-time">4 hours ago</span>
+              </div>
+              <div class="c-body">Correct. It only <em>seems</em> quiet because you tune it out. Put your ear to someone's stomach in a quiet room and you'll hear a whole orchestra.</div>
+              <div class="c-actions"><button class="c-btn">▲ 7.1k</button><button class="c-btn">Reply</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comment">
+        <div class="comment-header">
+          <div class="c-avatar"><img src="https://picsum.photos/seed/user3/48/48" alt="" /></div>
+          <span class="c-user">u/BiologyBuddy42</span>
+          <span class="c-points">9.8k points</span>
+          <span class="c-time">5 hours ago</span>
+        </div>
+        <div class="c-body">ELI5 version: imagine your tummy is a garden hose. Empty hose you shake = air rushes around, makes noise. Full hose you shake = water sloshes, different noise. Both noisy, different reasons.</div>
+        <div class="c-actions"><button class="c-btn">▲ 9.8k</button><button class="c-btn">Reply</button></div>
+      </div>
+
+      <div class="comment">
+        <div class="comment-header">
+          <div class="c-avatar"><img src="https://picsum.photos/seed/user4/48/48" alt="" /></div>
+          <span class="c-user">u/MedStudentMike</span>
+          <span class="c-points">4.3k points</span>
+          <span class="c-time">3 hours ago</span>
+        </div>
+        <div class="c-body">Adding on: the "hungry" growl is called the <strong>migrating motor complex</strong> (MMC) — a housekeeping wave that sweeps your GI tract every 90–120 minutes when you haven't eaten. Your body is literally self-cleaning between meals.</div>
+        <div class="c-actions"><button class="c-btn">▲ 4.3k</button><button class="c-btn">Reply</button></div>
+      </div>
+    </div>
+
+    <!-- Post 2 -->
+    <div class="post-card" id="p2" onclick="toggle('p2','c2')">
+      <div class="vote-col">
+        <button class="upvote" onclick="vote(event,this)">▲</button>
+        <span class="vote-num">28.7k</span>
+        <button class="downvote" onclick="vote(event,this)">▼</button>
+      </div>
+      <div class="post-body-wrap">
+        <div class="post-meta">
+          <span class="sub">r/explainlikeimfive</span><span class="dot">•</span>
+          Posted by u/TechNewbie_404 <span class="dot">•</span> 8 hours ago
+          <span class="award"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00b4ff"><path d="M12 1l2.1 6.4h6.8l-5.5 4 2.1 6.4L12 14l-5.5 3.8 2.1-6.4-5.5-4h6.8z"/></svg></span>
+          <span class="post-flair">ELI5</span>
+        </div>
+        <div class="post-title">Why does your phone battery degrade over time even if you charge it "correctly"?</div>
+        <div class="post-text">I've heard you're supposed to keep it between 20–80% and not let it hit 0%. I've done all that and my battery health is still at 84% after 18 months. Is this just unavoidable?</div>
+        <div class="post-actions">
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 612 Comments</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Save</button>
+        </div>
+      </div>
+      <img class="post-thumb" src="https://picsum.photos/seed/battery/192/144" alt="" onclick="event.stopPropagation()" />
+    </div>
+
+    <div class="comments-box" id="c2">
+      <div class="comments-sort">Sort by: <select><option>Best</option><option>Top</option><option>New</option></select></div>
+      <div class="comment">
+        <div class="comment-header">
+          <div class="c-avatar"><img src="https://picsum.photos/seed/user5/48/48" alt="" /></div>
+          <span class="c-user">u/ElectrochemEngineer</span><span class="c-points">14.2k points</span><span class="c-time">7 hours ago</span>
+        </div>
+        <div class="c-body">Think of a lithium-ion battery like a sponge. Every charge cycle, lithium ions squeeze into tiny spaces (like water into a sponge). After hundreds of cycles, those spaces physically deform — the sponge loses its shape and can't hold as many ions. This is completely physical and chemical; you can slow it down but not stop it. Your 84% after 18 months is actually pretty good.</div>
+        <div class="c-actions"><button class="c-btn">▲ 14.2k</button><button class="c-btn">Reply</button></div>
+      </div>
+      <div class="comment">
+        <div class="comment-header">
+          <div class="c-avatar"><img src="https://picsum.photos/seed/user6/48/48" alt="" /></div>
+          <span class="c-user">u/PhysicsTeacher_Ramos</span><span class="c-points">6.1k points</span><span class="c-time">6 hours ago</span>
+        </div>
+        <div class="c-body">ELI5: imagine a brand new notebook with 100 pages. Every time you use your phone, you tear out a tiny sliver of a page. You can't tear out a whole page at once if you're careful, but you're always tearing slivers. After 18 months of careful use, you've lost about 16 pages. That's your battery.</div>
+        <div class="c-actions"><button class="c-btn">▲ 6.1k</button><button class="c-btn">Reply</button></div>
+      </div>
+    </div>
+
+    <!-- Post 3 -->
+    <div class="post-card" id="p3" onclick="toggle('p3','c3')">
+      <div class="vote-col">
+        <button class="upvote" onclick="vote(event,this)">▲</button>
+        <span class="vote-num">19.4k</span>
+        <button class="downvote" onclick="vote(event,this)">▼</button>
+      </div>
+      <div class="post-body-wrap">
+        <div class="post-meta">
+          <span class="sub">r/explainlikeimfive</span><span class="dot">•</span>
+          Posted by u/WonderingWanderer88 <span class="dot">•</span> 11 hours ago
+          <span class="post-flair">ELI5</span>
+        </div>
+        <div class="post-title">Why do we yawn when we see someone else yawn, and does it happen with animals too?</div>
+        <div class="post-text">I literally just yawned writing this title. It happened again while rereading it. Send help.</div>
+        <div class="post-actions">
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 389 Comments</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Save</button>
+        </div>
+      </div>
+      <img class="post-thumb" src="https://picsum.photos/seed/yawn/192/144" alt="" onclick="event.stopPropagation()" />
+    </div>
+
+    <div class="comments-box" id="c3">
+      <div class="comments-sort">Sort by: <select><option>Best</option><option>Top</option><option>New</option></select></div>
+      <div class="comment">
+        <div class="comment-header">
+          <div class="c-avatar"><img src="https://picsum.photos/seed/user7/48/48" alt="" /></div>
+          <span class="c-user">u/NeuroscienceNerd</span><span class="c-points">11.8k points</span><span class="c-time">10 hours ago</span>
+        </div>
+        <div class="c-body">Honest answer: we don't fully know, which is rare for something so common. Best theory: it's tied to <strong>social bonding and empathy</strong>. Animals with stronger social bonds yawn more contagiously — dogs catch yawns from owners, chimps from chimps they're close to. Sociopaths and people with low empathy are less susceptible to contagious yawning. It might be an ancient social signal: "I'm in sync with you."</div>
+        <div class="c-actions"><button class="c-btn">▲ 11.8k</button><button class="c-btn">Reply</button></div>
+      </div>
+    </div>
+
+    <!-- Post 4 -->
+    <div class="post-card" id="p4" onclick="toggle('p4','c4')">
+      <div class="vote-col">
+        <button class="upvote" onclick="vote(event,this)">▲</button>
+        <span class="vote-num">15.1k</span>
+        <button class="downvote" onclick="vote(event,this)">▼</button>
+      </div>
+      <div class="post-body-wrap">
+        <div class="post-meta">
+          <span class="sub">r/explainlikeimfive</span><span class="dot">•</span>
+          Posted by u/SleepyStudent_UI <span class="dot">•</span> 14 hours ago
+          <span class="award"><svg width="14" height="14" viewBox="0 0 24 24" fill="#ffb000"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></span>
+          <span class="post-flair">ELI5</span>
+        </div>
+        <div class="post-title">Why does time feel like it passes faster as you get older?</div>
+        <div class="post-actions">
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 1.1k Comments</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
+          <button class="action-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Save</button>
+        </div>
+      </div>
+      <img class="post-thumb" src="https://picsum.photos/seed/clock/192/144" alt="" onclick="event.stopPropagation()" />
+    </div>
+
+    <div class="comments-box" id="c4">
+      <div class="comments-sort">Sort by: <select><option>Best</option><option>Top</option><option>New</option></select></div>
+      <div class="comment">
+        <div class="comment-header">
+          <div class="c-avatar"><img src="https://picsum.photos/seed/user8/48/48" alt="" /></div>
+          <span class="c-user">u/PsychProfessor_Lind</span><span class="c-points">22.3k points</span><span class="c-time">13 hours ago</span>
+        </div>
+        <div class="c-body">Proportional theory: when you're 5, one year is 20% of your entire life. When you're 50, it's 2%. Your brain measures time relative to how much you've already experienced.<br><br>Also, novelty matters. As a kid, almost everything is new — your brain records lots of distinct memories because it's encoding things it hasn't seen. Novel = more memories = time feels long in retrospect. As an adult, most days are routine. Low novelty = fewer distinct memories = a whole year feels like a blur.</div>
+        <div class="c-actions"><button class="c-btn">▲ 22.3k</button><button class="c-btn">Reply</button></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-widget">
+      <div class="widget-banner"></div>
+      <div class="widget-body">
+        <div class="community-name">r/explainlikeimfive</div>
+        <div class="community-desc">Explain Like I'm Five is the best forum and archive on the internet for layperson-friendly explanations. Don't Panic!</div>
+        <div class="stat-row">
+          <div class="stat-item">
+            <strong>23.4M</strong>
+            <span>Members</span>
+          </div>
+          <div class="stat-item">
+            <strong><span class="online-dot"></span>4,821</strong>
+            <span>Online</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#576f76;margin-bottom:12px;">
+          Created Jan 20, 2011 &nbsp;•&nbsp; <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb000" style="vertical-align:-2px"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg> Top 1% Ranked by Size
+        </div>
+        <button class="w-join">Join</button>
+        <button class="w-create">Create Post</button>
+      </div>
+    </div>
+
+    <div class="sidebar-widget">
+      <div class="rules-title">r/explainlikeimfive Rules</div>
+      <div class="rule-item"><span><span class="rule-num">1.</span>Be nice, follow reddiquette</span> <span>›</span></div>
+      <div class="rule-item"><span><span class="rule-num">2.</span>Explain for a 5-year-old</span> <span>›</span></div>
+      <div class="rule-item"><span><span class="rule-num">3.</span>No medical/legal/financial advice</span> <span>›</span></div>
+      <div class="rule-item"><span><span class="rule-num">4.</span>Straightforward answers only</span> <span>›</span></div>
+      <div class="rule-item"><span><span class="rule-num">5.</span>Search before posting</span> <span>›</span></div>
+    </div>
+
+    <div class="sidebar-widget">
+      <div class="related-title">Related Communities</div>
+      <div class="related-sub">
+        <div class="rsub-icon"><img src="https://picsum.photos/seed/askscience/64/64" alt="" /></div>
+        <div><div class="rsub-name">r/askscience</div><div class="rsub-members">22.5M members</div></div>
+      </div>
+      <div class="related-sub">
+        <div class="rsub-icon"><img src="https://picsum.photos/seed/askreddit/64/64" alt="" /></div>
+        <div><div class="rsub-name">r/AskReddit</div><div class="rsub-members">42.3M members</div></div>
+      </div>
+      <div class="related-sub">
+        <div class="rsub-icon"><img src="https://picsum.photos/seed/til/64/64" alt="" /></div>
+        <div><div class="rsub-name">r/todayilearned</div><div class="rsub-members">35.1M members</div></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  function toggle(postId, commentsId) {
+    const post = document.getElementById(postId);
+    const comments = document.getElementById(commentsId);
+    const isOpen = post.classList.contains('expanded');
+    document.querySelectorAll('.post-card').forEach(p => p.classList.remove('expanded'));
+    document.querySelectorAll('.comments-box').forEach(c => c.classList.remove('open'));
+    if (!isOpen) {
+      post.classList.add('expanded');
+      comments.classList.add('open');
+    }
+  }
+
+  function vote(e, btn) {
+    e.stopPropagation();
+    const col = btn.closest('.vote-col');
+    const up = col.querySelector('.upvote');
+    const down = col.querySelector('.downvote');
+    const num = col.querySelector('.vote-num');
+    const val = parseFloat(num.textContent) * 1000;
+    if (btn.classList.contains('upvote')) {
+      const wasVoted = btn.classList.contains('voted');
+      up.classList.toggle('voted', !wasVoted);
+      down.classList.remove('voted');
+      num.textContent = formatNum(val + (wasVoted ? -1 : 1));
+    } else {
+      const wasVoted = btn.classList.contains('voted');
+      down.classList.toggle('voted', !wasVoted);
+      up.classList.remove('voted');
+      num.textContent = formatNum(val + (wasVoted ? 1 : -1));
+    }
+  }
+
+  function formatNum(n) {
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return String(n);
+  }
+
+  function setSort(btn) {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

